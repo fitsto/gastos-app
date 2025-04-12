@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Iniciar Sesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="ion-text-center ion-padding">
+    <h1>Gastos App</h1>
+    <p>Controla tus finanzas de manera sencilla</p>
+  </div>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <ion-item class="app-input">
+      <ion-label position="floating">Email</ion-label>
+      <ion-input
+        type="email"
+        formControlName="email"
+        [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item class="app-input">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input
+        type="password"
+        formControlName="password"
+        [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+      ></ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      type="submit"
+      class="app-button"
+      [disabled]="loginForm.invalid || isLoading"
+    >
+      {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      routerLink="/register"
+      [disabled]="isLoading"
+    >
+      ¿No tienes cuenta? Regístrate
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      (click)="resetPassword()"
+      [disabled]="isLoading"
+    >
+      ¿Olvidaste tu contraseña?
+    </ion-button>
+  </form>
+
+  <ion-alert
+    [isOpen]="!!error"
+    [header]="'Error'"
+    [message]="error"
+    [buttons]="['OK']"
+    (didDismiss)="error = null"
+  ></ion-alert>
+</ion-content>

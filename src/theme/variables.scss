@@ -1,2 +1,110 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+:root {
+  /** primary **/
+  --ion-color-primary: #3E8ED0;
+  --ion-color-primary-rgb: 62, 142, 208;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #377db7;
+  --ion-color-primary-tint: #519ad5;
+
+  /** secondary **/
+  --ion-color-secondary: #F4A261;
+  --ion-color-secondary-rgb: 244, 162, 97;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-contrast-rgb: 0, 0, 0;
+  --ion-color-secondary-shade: #d78f55;
+  --ion-color-secondary-tint: #f5ab71;
+
+  /** background **/
+  --ion-background-color: #FFFFFF;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #121212;
+  --ion-text-color-rgb: 18, 18, 18;
+
+  /** fonts **/
+  --ion-font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color: #121212;
+    --ion-background-color-rgb: 18, 18, 18;
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+  }
+}
+
+/* Tamaños de fuente */
+:root {
+  --ion-font-size-xl: 24px;  /* títulos */
+  --ion-font-size-lg: 18px;  /* subtítulos */
+  --ion-font-size-md: 16px;  /* texto destacado */
+  --ion-font-size-base: 14px;  /* texto normal */
+  --ion-font-size-sm: 12px;  /* texto pequeño */
+}
+
+/* Estilos de componentes reutilizables */
+.app-expense-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 8px;
+  padding: 16px;
+}
+
+.app-category-chip {
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: var(--ion-font-size-sm);
+  font-weight: 500;
+}
+
+.app-input {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 8px;
+  margin: 8px 0;
+}
+
+.app-button {
+  --border-radius: 8px;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  height: 48px;
+  margin: 16px 0;
+  font-weight: 500;
+}
+
+.app-chart {
+  width: 100%;
+  height: 300px;
+  margin: 16px 0;
+}
+
+.app-empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--ion-color-medium);
+}
+
+/* Animaciones */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .tablet-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
