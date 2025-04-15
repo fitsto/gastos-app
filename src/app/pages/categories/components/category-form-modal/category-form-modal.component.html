@@ -1,0 +1,46 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <h1>{{ category ? 'Editar' : 'Nueva' }} categoría</h1>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">Cancelar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input
+        formControlName="name"
+        placeholder="Ej: Alimentación"
+        type="text"
+      ></ion-input>
+    </ion-item>
+    <div class="error-message" *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched">
+      <p>El nombre es requerido</p>
+    </div>
+
+    <ion-item class="color-item">
+      <ion-label position="floating">Color</ion-label>
+      <div class="color-input-container">
+        <ion-input
+          type="color"
+          formControlName="color"
+        ></ion-input>
+        <div class="color-preview" [style.background-color]="categoryForm.get('color')?.value"></div>
+      </div>
+    </ion-item>
+
+    <ion-button
+      type="submit"
+      expand="block"
+      [disabled]="categoryForm.invalid"
+      class="submit-button"
+    >
+      {{ category ? 'Guardar cambios' : 'Crear categoría' }}
+    </ion-button>
+  </form>
+</ion-content>

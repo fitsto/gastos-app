@@ -1,0 +1,44 @@
+ion-header {
+  ion-toolbar {
+    --background: transparent;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  margin-left: 1rem;
+  margin-top: 0.25rem;
+}
+
+.color-item {
+  .color-input-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  ion-input[type="color"] {
+    --padding-start: 0;
+    --padding-end: 0;
+    height: 40px;
+  }
+
+  .color-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--ion-color-medium);
+  }
+}
+
+.submit-button {
+  margin-top: 2rem;
+}
