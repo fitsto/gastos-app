@@ -10,6 +10,7 @@ import { CreateCategoryUseCase } from '../../contexts/categories/application/cre
 import { DeleteCategoryUseCase } from '../../contexts/categories/application/delete-category.use-case';
 import { CategoryRepository } from '../../contexts/categories/domain/category.repository';
 import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
+import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/auth.supabase.repository';
 
 @Component({
   selector: 'app-categories',
@@ -27,10 +28,8 @@ export class CategoriesPage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private toastController: ToastController,
-    private getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
-    private getAllCategoriesUseCase: GetAllCategoriesUseCase,
-    private createCategoryUseCase: CreateCategoryUseCase,
-    private deleteCategoryUseCase: DeleteCategoryUseCase
+    private authSupabaseRepository: AuthSupabaseRepository,
+    private categoryRepository: CategorySupabaseRepository
   ) {
     this.categoryForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -42,11 +41,18 @@ export class CategoriesPage implements OnInit {
     this.loadCategories();
   }
 
+  async getCurrentUserId() {
+    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authSupabaseRepository);
+    const userId = await getCurrentUserIdUseCase.execute();
+    return userId;
+  }
+
   async loadCategories() {
     try {
       this.isLoading = true;
-      const userId = await this.getCurrentUserIdUseCase.execute();
-      this.categories = await this.getAllCategoriesUseCase.execute(userId);
+      const userId = await this.getCurrentUserId();
+      const getAllCategoriesUseCase = new GetAllCategoriesUseCase(this.categoryRepository);
+      this.categories = await getAllCategoriesUseCase.execute(userId);
     } catch (error) {
       const err = error as Error;
       await this.showToast(err.message || 'Error al cargar categorías', 'danger');
@@ -58,14 +64,15 @@ export class CategoriesPage implements OnInit {
   async onSubmit() {
     if (this.categoryForm.valid) {
       try {
-        const userId = await this.getCurrentUserIdUseCase.execute();
+        const userId = await this.getCurrentUserId();
         const categoryData = {
           ...this.categoryForm.value,
           user_id: userId,
           is_default: false
         };
 
-        await this.createCategoryUseCase.execute(categoryData);
+        const createCategoryUseCase = new CreateCategoryUseCase(this.categoryRepository);
+        await createCategoryUseCase.execute(categoryData);
         this.categoryForm.reset({ color: '#3880ff' });
         this.loadCategories();
       } catch (error) {
@@ -81,7 +88,8 @@ export class CategoriesPage implements OnInit {
       if (!category) {
         throw new Error('Categoría no encontrada');
       }
-      await this.deleteCategoryUseCase.execute(id);
+      const deleteCategoryUseCase = new DeleteCategoryUseCase(this.categoryRepository);
+      await deleteCategoryUseCase.execute(id);
       this.categories = this.categories.filter(category => category.id !== id);
       await this.showToast('Categoría eliminada exitosamente', 'success');
     } catch (error) {
