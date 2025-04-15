@@ -146,19 +146,19 @@
   }
 }
 
-ion-fab-button {
-  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+ion-fab {
+  margin: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .amount-card {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  --background-activated: var(--ion-color-primary-shade);
+  --background-hover: var(--ion-color-primary-tint);
+  --color: #ffffff;
+  --box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.2);
 
-  .chart-container,
-  .budget-progress {
-    background: rgba(255,255,255,0.05);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  ion-icon {
+    font-size: 24px;
   }
 }
 

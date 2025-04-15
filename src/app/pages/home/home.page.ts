@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -9,6 +8,20 @@ import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructur
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
 import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
 import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/auth.supabase.repository';
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonFab,
+  IonFabButton,
+  IonProgressBar
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { addOutline, add, timeOutline, listOutline, handLeftOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
@@ -17,9 +30,18 @@ import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/aut
   standalone: true,
   imports: [
     CommonModule,
-    IonicModule,
     RouterLink,
-    EmptyStateComponent
+    EmptyStateComponent,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonFab,
+    IonFabButton,
+    IonProgressBar
   ]
 })
 export class HomePage implements OnInit {
@@ -36,6 +58,16 @@ export class HomePage implements OnInit {
     { name: 'Transporte', percentage: 80, color: 'primary' },
     { name: 'Comida', percentage: 40, color: 'success' }
   ];
+
+  constructor() {
+    addIcons({
+      'add-outline': addOutline,
+      'time-outline': timeOutline,
+      'list-outline': listOutline,
+      'hand-left-outline': handLeftOutline,
+      add
+    });
+  }
 
   ngOnInit() {
     this.loadExpenses();
