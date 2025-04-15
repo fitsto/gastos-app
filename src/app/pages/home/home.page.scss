@@ -167,3 +167,52 @@ ion-fab-button {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 80vh;
+  padding: var(--app-spacing-xl);
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 var(--app-spacing-lg);
+    color: var(--app-text-primary);
+  }
+
+  .empty-icon {
+    font-size: 80px;
+    margin: var(--app-spacing-lg) 0;
+    color: var(--ion-color-medium);
+  }
+
+  p {
+    font-size: 16px;
+    color: var(--app-text-secondary);
+    margin: 0 0 var(--app-spacing-xl);
+  }
+
+  .empty-actions {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--app-spacing-md);
+
+    ion-button {
+      margin: 0;
+      height: 48px;
+      --border-radius: var(--app-border-radius);
+      font-weight: 500;
+
+      &.primary-action {
+        --background: var(--ion-color-primary);
+        --color: var(--ion-color-primary-contrast);
+      }
+    }
+  }
+}

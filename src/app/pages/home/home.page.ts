@@ -21,7 +21,7 @@ import {
   IonProgressBar
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, add, timeOutline, listOutline, handLeftOutline } from 'ionicons/icons';
+import { addOutline, add, timeOutline, listOutline, handLeftOutline, walletOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
@@ -60,13 +60,7 @@ export class HomePage implements OnInit {
   ];
 
   constructor() {
-    addIcons({
-      'add-outline': addOutline,
-      'time-outline': timeOutline,
-      'list-outline': listOutline,
-      'hand-left-outline': handLeftOutline,
-      add
-    });
+    addIcons({handLeftOutline,addOutline,walletOutline,timeOutline,listOutline,add});
   }
 
   ngOnInit() {
