@@ -2,10 +2,10 @@
   <ion-card-content>
     <div class="expense-header">
       <div class="category-info">
-        <div class="category-dot" [style.background-color]="getCategoryColor(expense.categoryId)"></div>
-        <ion-text class="category-name">{{ categoryName }}</ion-text>
+        <div class="category-dot" [style.background-color]="category?.color || '#757575'"></div>
+        <ion-text class="category-name">{{ category?.name || 'Sin categoría' }}</ion-text>
       </div>
-      <ion-text color="dark" class="amount">{{ expense.amount | currency }}</ion-text>
+      <ion-text color="dark" class="amount">{{ expense.amount | chileanCurrency }}</ion-text>
     </div>
 
     <div class="expense-details">

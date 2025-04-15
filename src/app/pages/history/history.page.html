@@ -11,7 +11,7 @@
   <div class="history-content">
     <!-- Filtros -->
     <div class="filters-section">
-      <div class="filter-group">
+      <div class="filters-row">
         <ion-button
           class="date-button"
           fill="outline"
@@ -19,7 +19,6 @@
         >
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
           {{ selectedMonth | monthYear }}
-          <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
         </ion-button>
 
         <ion-modal
@@ -42,15 +41,29 @@
           </ng-template>
         </ion-modal>
 
-        <div class="category-chips">
-          <app-category-chip
-            *ngFor="let category of categories"
-            [name]="category.name"
-            [color]="category.color"
-            [selected]="selectedCategory === category.id"
-            (click)="selectCategory(category.id)"
-          ></app-category-chip>
-        </div>
+        <ion-button
+          class="category-button"
+          fill="outline"
+          (click)="showCategoryPopover = true"
+        >
+          {{ getSelectedCategoryName() }}
+          <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
+        </ion-button>
+        <ion-popover [isOpen]="showCategoryPopover" (didDismiss)="showCategoryPopover = false">
+          <ng-template>
+            <ion-content>
+              <ion-list>
+                <ion-item button *ngFor="let category of categories" (click)="selectCategory(category.id); showCategoryPopover = false" [detail]="false">
+                  <ion-label slot="start">{{ category?.name || 'Todos' }}</ion-label>
+                  <ion-label slot="end"><div class="category-dot" [style.background-color]="category?.color || '#757575'"></div></ion-label>
+
+
+                </ion-item>
+              </ion-list>
+            </ion-content>
+          </ng-template>
+
+        </ion-popover>
       </div>
     </div>
 
@@ -58,7 +71,7 @@
     <div class="summary-card">
       <div class="summary-header">
         <h2>Total del período</h2>
-        <span class="total-amount">{{ filteredTotal | currency }}</span>
+        <span class="total-amount">{{ filteredTotal | chileanCurrency }}</span>
       </div>
     </div>
 
@@ -68,13 +81,13 @@
       <div *ngFor="let group of groupedExpenses" class="expense-group">
         <div class="date-header">
           <span class="date">{{ group.date | date:'dd MMM' }}</span>
-          <span class="total">{{ group.total | currency }}</span>
+          <span class="total">{{ group.total | chileanCurrency }}</span>
         </div>
 
         <app-expense-card
           *ngFor="let expense of group.expenses"
           [expense]="expense"
-          [categoryName]="getCategoryName(expense.categoryId)"
+          [category]="getCategory(expense.categoryId)"
           (edit)="handleEdit($event)"
           (delete)="handleDelete($event)"
           class="expense-item"
@@ -94,7 +107,7 @@
   </div>
 
   <!-- Botón flotante -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="filteredExpenses.length > 0">
     <ion-fab-button routerLink="/add-expense">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

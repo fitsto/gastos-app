@@ -11,6 +11,11 @@ import { CategorySupabaseRepository } from '../../contexts/categories/infrastruc
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
 import { Category } from '../../contexts/categories/domain/category.entity';
 import { MonthYearPipe } from '../../shared/pipes/month-year.pipe';
+import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
+import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
+import { ChileanCurrencyPipe } from '../../shared/pipes/chilean-currency.pipe';
 
 interface ExpenseGroup {
   date: string;
@@ -30,7 +35,8 @@ interface ExpenseGroup {
     ExpenseCardComponent,
     CategoryChipComponent,
     EmptyStateComponent,
-    MonthYearPipe
+    MonthYearPipe,
+    ChileanCurrencyPipe
   ]
 })
 export class HistoryPage implements OnInit {
@@ -39,6 +45,7 @@ export class HistoryPage implements OnInit {
   private router = inject(Router);
   private expenseRepository = inject(ExpenseSupabaseRepository);
   private categoryRepository = inject(CategorySupabaseRepository);
+  private authRepository = inject(AuthSupabaseRepository);
 
   selectedMonth = new Date().toISOString();
   selectedCategory = 0;
@@ -47,26 +54,38 @@ export class HistoryPage implements OnInit {
   groupedExpenses: ExpenseGroup[] = [];
   filteredTotal = 0;
   categories: Category[] = [];
+  userId: string = '';
+  showCategoryPopover = false;
 
-  ngOnInit() {
-    this.loadCategories();
-    this.loadExpenses();
+  constructor() {
+    addIcons({ add });
+  }
+
+  async ngOnInit() {
+    await this.loadUserId();
+    await this.loadCategories();
+    await this.loadExpenses();
+  }
+
+  async loadUserId() {
+    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authRepository);
+    this.userId = await getCurrentUserIdUseCase.execute();
   }
 
   async loadCategories() {
     try {
-      // TODO: Obtener el userId del servicio de autenticación
-      const userId = 'current-user-id';
-      this.categories = await this.categoryRepository.findAll(userId);
-
-      // Agregar la opción "Todas" al inicio
-      this.categories.unshift({
-        id: 0,
-        name: 'Todas',
-        color: '#92949c', // Color medium de Ionic
-        user_id: userId,
-        is_default: true
-      });
+      this.categories = await this.categoryRepository.findAll(this.userId);
+      // Evitar duplicados de la opción 'Todas'
+      if (!this.categories.some(c => c.id === 0)) {
+        this.categories.unshift({
+          id: 0,
+          name: 'Todos',
+          color: '#92949c', // Color medium de Ionic
+          user_id: this.userId,
+          is_default: true
+        });
+      }
+      console.log({categories: this.categories});
     } catch (error) {
       console.error('Error al cargar categorías:', error);
     }
@@ -75,7 +94,7 @@ export class HistoryPage implements OnInit {
   async loadExpenses() {
     const date = new Date(this.selectedMonth);
     this.expenses = await this.expenseRepository.findByMonth(
-      'current-user-id',
+      this.userId,
       date.getFullYear(),
       date.getMonth() + 1
     );
@@ -131,13 +150,18 @@ export class HistoryPage implements OnInit {
   }
 
   getCategoryName(categoryId: number): string {
+    console.log({categoryId, categories: this.categories})
     const category = this.categories.find(c => c.id === categoryId);
-    return category ? category.name : 'Desconocida';
+    return category ? category.name : 'Sin categoría';
   }
 
   getCategoryColor(categoryId: number): string {
     const category = this.categories.find(c => c.id === categoryId);
-    return category ? category.color : '#92949c';
+    return category ? category.color : '#757575'; // gris
+  }
+
+  getCategory(categoryId: number): Category | undefined {
+    return this.categories.find(c => c.id === categoryId);
   }
 
   async handleEdit(expense: Expense) {
@@ -171,5 +195,11 @@ export class HistoryPage implements OnInit {
       document.body.appendChild(toast);
       await toast.present();
     }
+  }
+
+  getSelectedCategoryName(): string {
+    if (this.selectedCategory === 0) return 'Todos';
+    const category = this.categories.find(c => c.id === this.selectedCategory);
+    return category ? category.name : 'Todos';
   }
 }
