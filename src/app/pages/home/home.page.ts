@@ -8,6 +8,7 @@ import { IExpenseRepository } from '../../contexts/expenses/domain/expense.repos
 import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
 import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
+import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/auth.supabase.repository';
 
 @Component({
   selector: 'app-home',
@@ -24,8 +25,8 @@ import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-cur
 export class HomePage implements OnInit {
   @ViewChild('expensesChart') private chartCanvas!: ElementRef;
 
-  private expenseRepository = inject(ExpenseSupabaseRepository) as IExpenseRepository;
-  private getCurrentUserIdUseCase = inject(GetCurrentUserIdUseCase);
+  private expenseRepository = inject(ExpenseSupabaseRepository);
+  private authSupabaseRepository = inject(AuthSupabaseRepository);
   private chart: Chart | null = null;
 
   userName: string = 'Felipe';
@@ -42,7 +43,8 @@ export class HomePage implements OnInit {
 
   async loadExpenses() {
     const currentDate = new Date();
-    const userId = await this.getCurrentUserIdUseCase.execute();
+    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authSupabaseRepository);
+    const userId = await getCurrentUserIdUseCase.execute();
     this.expenses = await this.expenseRepository.findByMonth(
       userId,
       currentDate.getFullYear(),
