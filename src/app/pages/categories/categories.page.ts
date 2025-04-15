@@ -1,39 +1,69 @@
-import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonIcon,
+  IonButtons,
+  IonBackButton,
+  ModalController,
+  ToastController
+} from '@ionic/angular/standalone';
+import { RouterLink } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  addCircleOutline,
+  pencilOutline,
+  trashOutline,
+  folderOutline
+} from 'ionicons/icons';
 import { Category } from '../../contexts/categories/domain/category.entity';
-import { ToastController } from '@ionic/angular';
-import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
-import { GetAllCategoriesUseCase } from '../../contexts/categories/application/get-all-categories.use-case';
-import { CreateCategoryUseCase } from '../../contexts/categories/application/create-category.use-case';
-import { DeleteCategoryUseCase } from '../../contexts/categories/application/delete-category.use-case';
-import { CategoryRepository } from '../../contexts/categories/domain/category.repository';
 import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
-import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/auth.supabase.repository';
+import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
+import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
+import { CategoryFormModalComponent } from './components/category-form-modal/category-form-modal.component';
 
 @Component({
   selector: 'app-categories',
+  templateUrl: './categories.page.html',
+  styleUrls: ['./categories.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule],
-  providers: [
-  ],
-  templateUrl: './categories.page.html'
+  imports: [
+    CommonModule,
+    RouterLink,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonButton,
+    IonIcon,
+    IonButtons,
+    IonBackButton
+  ]
 })
 export class CategoriesPage implements OnInit {
-  categories: Category[] = [];
-  categoryForm: FormGroup;
-  isLoading: boolean = false;
+  private categoryRepository = inject(CategorySupabaseRepository);
+  private authRepository = inject(AuthSupabaseRepository);
+  private modalCtrl = inject(ModalController);
+  private toastCtrl = inject(ToastController);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private toastController: ToastController,
-    private authSupabaseRepository: AuthSupabaseRepository,
-    private categoryRepository: CategorySupabaseRepository
-  ) {
-    this.categoryForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      color: ['#3880ff', Validators.required]
+  categories: Category[] = [];
+
+  constructor() {
+    addIcons({
+      addCircleOutline,
+      pencilOutline,
+      trashOutline,
+      folderOutline
     });
   }
 
@@ -41,69 +71,81 @@ export class CategoriesPage implements OnInit {
     this.loadCategories();
   }
 
-  async getCurrentUserId() {
-    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authSupabaseRepository);
+  async loadCategories() {
+    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authRepository);
     const userId = await getCurrentUserIdUseCase.execute();
-    return userId;
+    this.categories = await this.categoryRepository.findAll(userId);
   }
 
-  async loadCategories() {
-    try {
-      this.isLoading = true;
-      const userId = await this.getCurrentUserId();
-      const getAllCategoriesUseCase = new GetAllCategoriesUseCase(this.categoryRepository);
-      this.categories = await getAllCategoriesUseCase.execute(userId);
-    } catch (error) {
-      const err = error as Error;
-      await this.showToast(err.message || 'Error al cargar categorías', 'danger');
-    } finally {
-      this.isLoading = false;
+  async handleEdit(category: Category) {
+    const modal = await this.modalCtrl.create({
+      component: CategoryFormModalComponent,
+      componentProps: {
+        category
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      try {
+        await this.categoryRepository.update(category.id, {
+          ...category,
+          ...data
+        });
+        await this.loadCategories();
+        this.showToast('Categoría actualizada correctamente');
+      } catch (error) {
+        console.error('Error al actualizar categoría:', error);
+        this.showToast('Error al actualizar la categoría', 'danger');
+      }
     }
   }
 
-  async onSubmit() {
-    if (this.categoryForm.valid) {
+  async handleDelete(categoryId: number) {
+    try {
+      await this.categoryRepository.delete(categoryId);
+      this.categories = this.categories.filter(c => c.id !== categoryId);
+      this.showToast('Categoría eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar categoría:', error);
+      this.showToast('Error al eliminar la categoría', 'danger');
+    }
+  }
+
+  async showAddCategoryModal() {
+    const modal = await this.modalCtrl.create({
+      component: CategoryFormModalComponent
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
       try {
-        const userId = await this.getCurrentUserId();
-        const categoryData = {
-          ...this.categoryForm.value,
+        const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authRepository);
+        const userId = await getCurrentUserIdUseCase.execute();
+        await this.categoryRepository.create({
+          ...data,
           user_id: userId,
           is_default: false
-        };
-
-        const createCategoryUseCase = new CreateCategoryUseCase(this.categoryRepository);
-        await createCategoryUseCase.execute(categoryData);
-        this.categoryForm.reset({ color: '#3880ff' });
-        this.loadCategories();
+        });
+        await this.loadCategories();
+        this.showToast('Categoría creada correctamente');
       } catch (error) {
-        const err = error as Error;
-        await this.showToast(err.message || 'Error al crear categoría', 'danger');
+        console.error('Error al crear categoría:', error);
+        this.showToast('Error al crear la categoría', 'danger');
       }
     }
   }
 
-  async handleDelete(id: number) {
-    try {
-      const category = this.categories.find(c => c.id === id);
-      if (!category) {
-        throw new Error('Categoría no encontrada');
-      }
-      const deleteCategoryUseCase = new DeleteCategoryUseCase(this.categoryRepository);
-      await deleteCategoryUseCase.execute(id);
-      this.categories = this.categories.filter(category => category.id !== id);
-      await this.showToast('Categoría eliminada exitosamente', 'success');
-    } catch (error) {
-      const err = error as Error;
-      await this.showToast(err.message || 'Error al eliminar categoría', 'danger');
-    }
-  }
-
-  private async showToast(message: string, color: 'success' | 'danger') {
-    const toast = await this.toastController.create({
+  private async showToast(message: string, color: 'success' | 'danger' = 'success') {
+    const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
       color
     });
-    toast.present();
+    await toast.present();
   }
 }

@@ -1,81 +1,46 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Categorías</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
+    <ion-title>
+      <h1>Administrar categorías</h1>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="ion-padding">
-    <!-- Formulario de nueva categoría -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Nueva Categoría</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
-          <ion-item>
-            <ion-label position="floating">Nombre</ion-label>
-            <ion-input
-              formControlName="name"
-              placeholder="Ej: Alimentación"
-            ></ion-input>
-          </ion-item>
-          <ion-text color="danger" *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched">
-            <p>El nombre es requerido</p>
-          </ion-text>
-
-          <ion-item>
-            <ion-label position="floating">Color</ion-label>
-            <ion-input
-              type="color"
-              formControlName="color"
-            ></ion-input>
-          </ion-item>
-
-          <ion-button
-            type="submit"
-            expand="block"
-            [disabled]="categoryForm.invalid"
-            class="ion-margin-top"
-          >
-            Agregar Categoría
-          </ion-button>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
     <!-- Lista de categorías -->
-    <ion-list>
-      <ion-item-group>
-        <ion-item-divider>
-          <ion-label>Categorías Existentes</ion-label>
-        </ion-item-divider>
-
-        <ion-item *ngFor="let category of categories">
-          <ion-label>
-            <h2>{{ category.name }}</h2>
-          </ion-label>
-          <ion-button
-            fill="clear"
-            color="danger"
-            slot="end"
-            (click)="handleDelete(category.id)"
-            [disabled]="category.is_default"
-          >
+    <ion-list class="categories-list">
+      <ion-item *ngFor="let category of categories" lines="none" class="category-item">
+        <div class="category-color" [style.background-color]="category.color"></div>
+        <ion-label>{{ category.name }}</ion-label>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (click)="handleEdit(category)">
+            <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="danger" (click)="handleDelete(category.id)" [disabled]="category.is_default">
             <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
           </ion-button>
-        </ion-item>
-      </ion-item-group>
+        </ion-buttons>
+      </ion-item>
     </ion-list>
 
+    <!-- Botón para agregar nueva categoría -->
+    <ion-button expand="block" fill="outline" class="add-category-button" (click)="showAddCategoryModal()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Agregar nueva categoría
+    </ion-button>
+
     <!-- Estado vacío -->
-    <div *ngIf="categories.length === 0" class="app-empty-state">
-      <ion-icon name="folder-outline" size="large"></ion-icon>
+    <div *ngIf="categories.length === 0" class="empty-state">
+      <ion-icon name="folder-outline" class="empty-icon"></ion-icon>
       <h2>No hay categorías</h2>
       <p>Agrega tu primera categoría para comenzar</p>
+      <ion-button expand="block" (click)="showAddCategoryModal()">
+        Agregar primera categoría
+      </ion-button>
     </div>
   </div>
 </ion-content>
