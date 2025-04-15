@@ -14,9 +14,10 @@
       <ion-label>Monto:</ion-label>
       <ion-item class="amount-group">
         <ion-input
-          type="number"
-          formControlName="amount"
-          placeholder="0.00"
+          type="text"
+          [value]="displayAmount"
+          (ionInput)="onAmountInput($event)"
+          placeholder="0"
           class="amount-input"
         ></ion-input>
       </ion-item>

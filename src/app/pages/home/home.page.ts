@@ -7,7 +7,8 @@ import { IExpenseRepository } from '../../contexts/expenses/domain/expense.repos
 import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
 import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
-import { AuthSupabaseRepository } from 'src/app/contexts/auth/infrastructure/auth.supabase.repository';
+import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
+import { ChileanCurrencyPipe } from '../../shared/pipes/chilean-currency.pipe';
 import {
   IonContent,
   IonHeader,
@@ -18,10 +19,14 @@ import {
   IonIcon,
   IonFab,
   IonFabButton,
-  IonProgressBar
+  IonProgressBar,
+  IonCard,
+  IonCardContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, add, timeOutline, listOutline, handLeftOutline, walletOutline } from 'ionicons/icons';
+import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
+import { Category } from '../../contexts/categories/domain/category.entity';
 
 @Component({
   selector: 'app-home',
@@ -41,59 +46,77 @@ import { addOutline, add, timeOutline, listOutline, handLeftOutline, walletOutli
     IonIcon,
     IonFab,
     IonFabButton,
-    IonProgressBar
-  ]
+    IonProgressBar,
+    ChileanCurrencyPipe,
+    IonCard,
+    IonCardContent
+  ],
+  providers: [ChileanCurrencyPipe]
 })
 export class HomePage implements OnInit {
   @ViewChild('expensesChart') private chartCanvas!: ElementRef;
 
   private expenseRepository = inject(ExpenseSupabaseRepository);
-  private authSupabaseRepository = inject(AuthSupabaseRepository);
-  private chart: Chart | null = null;
+  private categoryRepository = inject(CategorySupabaseRepository);
+  private authRepository = inject(AuthSupabaseRepository);
+  private chileanCurrencyPipe = inject(ChileanCurrencyPipe);
 
-  userName: string = 'Felipe';
   expenses: Expense[] = [];
-  total: number = 0;
-  categoryProgress = [
-    { name: 'Transporte', percentage: 80, color: 'primary' },
-    { name: 'Comida', percentage: 40, color: 'success' }
-  ];
+  categories: Category[] = [];
+  totalAmount = 0;
+  loading = true;
+  chart: Chart | null = null;
 
   constructor() {
     addIcons({handLeftOutline,addOutline,walletOutline,timeOutline,listOutline,add});
   }
 
   ngOnInit() {
-    this.loadExpenses();
+    this.loadExpensesAndCategories();
   }
 
-  async loadExpenses() {
-    const currentDate = new Date();
-    const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authSupabaseRepository);
-    const userId = await getCurrentUserIdUseCase.execute();
-    this.expenses = await this.expenseRepository.findByMonth(
-      userId,
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1
-    );
-    this.calculateTotal();
-    this.initChart();
+  ionViewWillEnter() {
+    this.loadExpensesAndCategories();
+  }
+
+  async loadExpensesAndCategories() {
+    this.loading = true;
+    try {
+      const currentDate = new Date();
+      const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authRepository);
+      const userId = await getCurrentUserIdUseCase.execute();
+      const [expenses, categories] = await Promise.all([
+        this.expenseRepository.findByMonth(
+          userId,
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1
+        ),
+        this.categoryRepository.findAll(userId)
+      ]);
+      this.expenses = expenses;
+      this.categories = categories;
+      this.calculateTotal();
+      this.initChart();
+    } catch (error) {
+      console.error('Error al cargar gastos o categorías:', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   private calculateTotal() {
-    this.total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    this.totalAmount = this.expenses.reduce((total, expense) => total + expense.amount, 0);
   }
 
   private initChart() {
-    if (!this.chartCanvas) return;
-
-    const ctx = this.chartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    // Destruir el gráfico anterior si existe
     if (this.chart) {
       this.chart.destroy();
     }
+
+    if (!this.chartCanvas || this.expenses.length === 0 || this.categories.length === 0) return;
+
+    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
 
     // Agrupar gastos por categoría
     const expensesByCategory = this.expenses.reduce((acc, expense) => {
@@ -103,47 +126,48 @@ export class HomePage implements OnInit {
       }
       acc[categoryId] += expense.amount;
       return acc;
-    }, {} as { [key: string]: number });
+    }, {} as { [key: number]: number });
+
+    // Filtrar categorías que tienen gastos
+    const usedCategories = this.categories.filter(cat => expensesByCategory[cat.id] !== undefined);
 
     // Preparar datos para el gráfico
     const data = {
-      labels: Object.keys(expensesByCategory),
+      labels: usedCategories.map(cat => cat.name),
       datasets: [{
-        data: Object.values(expensesByCategory),
-        backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF'
-        ]
+        data: usedCategories.map(cat => expensesByCategory[cat.id]),
+        backgroundColor: usedCategories.map(cat => cat.color)
       }]
     };
 
-    // Crear el gráfico
     this.chart = new Chart(ctx, {
-      type: 'doughnut',
+      type: 'pie',
       data: data,
       options: {
         responsive: true,
         plugins: {
           legend: {
-            position: 'bottom'
+            display: true,
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: {
+                size: 14
+              }
+            }
           }
         }
       }
     });
   }
 
+  get formattedTotal(): string {
+    return this.chileanCurrencyPipe.transform(this.totalAmount);
+  }
+
   getCategoryName(categoryId: number): string {
-    const categories: { [key: number]: string } = {
-      1: 'Alimentación',
-      2: 'Transporte',
-      3: 'Entretenimiento',
-      4: 'Servicios',
-      5: 'Otros'
-    };
-    return categories[categoryId] || 'Otros';
+    const category = this.categories.find(c => c.id === categoryId);
+    return category?.name || 'Sin categoría';
   }
 
   async handleEdit(expense: Expense) {

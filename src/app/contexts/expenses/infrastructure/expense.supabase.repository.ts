@@ -18,9 +18,17 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   }
 
   async create(expense: Omit<Expense, 'id'>): Promise<Expense> {
+    const expenseData = {
+      amount: expense.amount,
+      category_id: expense.categoryId,
+      date: expense.date,
+      description: expense.description,
+      user_id: expense.userId
+    };
+
     const { data, error } = await this.supabase
       .from('expenses')
-      .insert(expense)
+      .insert(expenseData)
       .select()
       .single();
 

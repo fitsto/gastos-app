@@ -30,59 +30,61 @@
 }
 
 .welcome-header {
-  padding: var(--app-spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   h1 {
-    font-size: var(--app-title-size);
+    font-size: 1.5rem;
     font-weight: 600;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: var(--app-spacing-xs);
-    color: var(--app-text-primary);
+    gap: 0.5rem;
 
     ion-icon {
-      font-size: 24px;
-      color: var(--ion-color-warning);
+      font-size: 1.5rem;
     }
   }
 }
 
 .main-content {
-  max-width: 768px;
+  max-width: 600px;
   margin: 0 auto;
-  animation: fadeIn 0.3s ease-in-out;
+  padding-bottom: 5rem;
 }
 
 .amount-card {
   background: var(--ion-color-primary);
-  color: var(--ion-color-primary-contrast);
-  border-radius: var(--app-border-radius);
-  padding: var(--app-spacing-lg);
-  margin-bottom: var(--app-spacing-lg);
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
   text-align: center;
+  margin-bottom: 2rem;
   box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.2);
 
   .amount-title {
-    font-size: 36px;
+    font-size: 2.5rem;
     font-weight: 700;
-    margin: 0 0 var(--app-spacing-xs);
+    margin: 0;
+    line-height: 1.2;
   }
 
   .amount-subtitle {
-    font-size: var(--app-text-size);
-    margin: 0;
+    margin: 0.5rem 0 0;
     opacity: 0.9;
   }
 }
 
 .chart-container {
-  background: var(--app-background);
-  border-radius: var(--app-border-radius);
-  padding: var(--app-spacing-md);
-  margin-bottom: var(--app-spacing-lg);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  height: 300px;
+  background: var(--ion-card-background);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 2rem auto;
+  box-shadow: var(--ion-card-box-shadow);
+  max-width: 400px;
+  height: 400px;
+  position: relative;
 }
 
 .budget-progress {
@@ -131,18 +133,15 @@
 }
 
 .action-buttons {
-  display: grid;
-  gap: var(--app-spacing-sm);
-  margin: var(--app-spacing-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
 
   ion-button {
-    --border-radius: var(--app-border-radius);
-    height: 48px;
-    font-weight: 500;
-
-    ion-icon {
-      margin-right: var(--app-spacing-xs);
-    }
+    --border-radius: 12px;
+    --padding-top: 1rem;
+    --padding-bottom: 1rem;
   }
 }
 
@@ -155,64 +154,34 @@ ion-fab-button {
   --background-activated: var(--ion-color-primary-shade);
   --background-hover: var(--ion-color-primary-tint);
   --color: #ffffff;
-  --box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.2);
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.4);
 
   ion-icon {
     font-size: 24px;
   }
 }
 
-@media (min-width: 768px) {
-  .action-buttons {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
-  min-height: 80vh;
-  padding: var(--app-spacing-xl);
-
-  h1 {
-    font-size: 28px;
-    font-weight: 600;
-    margin: 0 0 var(--app-spacing-lg);
-    color: var(--app-text-primary);
-  }
+  padding: 2rem;
+  margin-top: 2rem;
 
   .empty-icon {
-    font-size: 80px;
-    margin: var(--app-spacing-lg) 0;
+    font-size: 5rem;
     color: var(--ion-color-medium);
+    margin-bottom: 1rem;
   }
 
   p {
-    font-size: 16px;
-    color: var(--app-text-secondary);
-    margin: 0 0 var(--app-spacing-xl);
+    color: var(--ion-color-medium);
+    margin-bottom: 2rem;
   }
 
   .empty-actions {
-    width: 100%;
-    max-width: 300px;
     display: flex;
     flex-direction: column;
-    gap: var(--app-spacing-md);
-
-    ion-button {
-      margin: 0;
-      height: 48px;
-      --border-radius: var(--app-border-radius);
-      font-weight: 500;
-
-      &.primary-action {
-        --background: var(--ion-color-primary);
-        --color: var(--ion-color-primary-contrast);
-      }
-    }
+    gap: 1rem;
+    max-width: 300px;
+    margin: 0 auto;
   }
 }

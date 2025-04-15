@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-title>
       <div class="welcome-header">
-        <h1>¡Bienvenido, {{ userName }}! <ion-icon name="hand-left-outline"></ion-icon></h1>
+        <h1>¡Bienvenido, Felipe! <ion-icon name="hand-left-outline"></ion-icon></h1>
       </div>
     </ion-title>
     <ion-buttons slot="end">
@@ -14,10 +14,11 @@
 </ion-header>
 
 <ion-content>
+  <ion-progress-bar type="indeterminate" *ngIf="loading"></ion-progress-bar>
+
   <div class="ion-padding main-content">
     <!-- Estado vacío -->
-    <div class="empty-state" *ngIf="expenses.length === 0">
-      <h1>¡Bienvenido, Felipe!</h1>
+    <div class="empty-state" *ngIf="!loading && expenses.length === 0">
       <ion-icon name="wallet-outline" class="empty-icon"></ion-icon>
       <p>Comienza agregando tu primer gasto.</p>
 
@@ -32,30 +33,16 @@
     </div>
 
     <!-- Contenido cuando hay gastos -->
-    <ng-container *ngIf="expenses.length > 0">
+    <ng-container *ngIf="!loading && expenses.length > 0">
       <!-- Total del mes -->
       <div class="amount-card">
-        <h2 class="amount-title">$ {{ total | number:'1.0-0' }}</h2>
+        <h2 class="amount-title">$ {{ formattedTotal }}</h2>
         <p class="amount-subtitle">Total gastado este mes</p>
       </div>
 
       <!-- Gráfico de categorías -->
       <div class="chart-container">
         <canvas #expensesChart></canvas>
-      </div>
-
-      <!-- Progreso del presupuesto -->
-      <div class="budget-progress">
-        <h3>Progreso Presupuesto</h3>
-        <div class="progress-bars">
-          <div class="progress-item" *ngFor="let category of categoryProgress">
-            <div class="progress-header">
-              <span class="category-name">{{ category.name }}</span>
-              <span class="progress-percentage">{{ category.percentage }}%</span>
-            </div>
-            <ion-progress-bar [value]="category.percentage / 100" [color]="category.color"></ion-progress-bar>
-          </div>
-        </div>
       </div>
 
       <!-- Botones de acción -->
