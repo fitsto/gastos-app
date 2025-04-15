@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--app-spacing-xl);
+  min-height: 300px;
+  background: var(--app-background);
+  border-radius: var(--app-border-radius);
+  margin: var(--app-spacing-lg);
+}
+
+ion-icon {
+  font-size: 72px;
+  margin-bottom: var(--app-spacing-lg);
+  color: var(--ion-color-medium);
+  opacity: 0.8;
+  animation: scaleIn 0.5s ease-out 0.2s both;
+}
+
+h2 {
+  font-size: var(--app-title-size);
+  font-weight: 600;
+  margin-bottom: var(--app-spacing-sm);
+  color: var(--app-text-primary);
+  animation: slideUp 0.5s ease-out 0.3s both;
+}
+
+p {
+  font-size: var(--app-text-size);
+  margin-bottom: var(--app-spacing-lg);
+  color: var(--app-text-secondary);
+  max-width: 300px;
+  line-height: 1.5;
+  animation: slideUp 0.5s ease-out 0.4s both;
+}
+
+ion-button {
+  --padding-start: var(--app-spacing-lg);
+  --padding-end: var(--app-spacing-lg);
+  height: 48px;
+  font-weight: 500;
+  animation: slideUp 0.5s ease-out 0.5s both;
+
+  &.app-button {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+
+    &:hover {
+      --background: var(--ion-color-primary-shade);
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .empty-state {
+    background: rgba(255,255,255,0.03);
+  }
+
+  ion-icon {
+    color: var(--ion-color-medium-shade);
+  }
+}

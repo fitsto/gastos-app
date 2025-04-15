@@ -1,0 +1,72 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <div class="welcome-header">
+        <h1>Hola, {{ userName }} <ion-icon name="hand-left-outline"></ion-icon></h1>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="action-button" routerLink="/add-expense">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ion-padding main-content">
+    <!-- Total del mes -->
+    <div class="amount-card">
+      <h2 class="amount-title">$ {{ totalAmount | number:'1.0-0' }}</h2>
+      <p class="amount-subtitle">Total gastado este mes</p>
+    </div>
+
+    <!-- Gráfico de categorías -->
+    <div class="chart-container">
+      <canvas #expensesChart></canvas>
+    </div>
+
+    <!-- Progreso del presupuesto -->
+    <div class="budget-progress">
+      <h3>Progreso Presupuesto</h3>
+      <div class="progress-bars">
+        <div class="progress-item" *ngFor="let category of categoryProgress">
+          <div class="progress-header">
+            <span class="category-name">{{ category.name }}</span>
+            <span class="progress-percentage">{{ category.percentage }}%</span>
+          </div>
+          <ion-progress-bar [value]="category.percentage / 100" [color]="category.color"></ion-progress-bar>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <ion-button expand="block" fill="outline" routerLink="/history">
+        <ion-icon name="time-outline" slot="start"></ion-icon>
+        Ver historial de gastos
+      </ion-button>
+      <ion-button expand="block" fill="outline" routerLink="/categories">
+        <ion-icon name="list-outline" slot="start"></ion-icon>
+        Administrar categorías
+      </ion-button>
+    </div>
+
+    <!-- Estado vacío -->
+    <app-empty-state *ngIf="expenses.length === 0">
+      <ion-icon name="wallet-outline" slot="icon"></ion-icon>
+      <h2>No hay gastos registrados</h2>
+      <p>Comienza agregando tu primer gasto para ver estadísticas y progreso</p>
+      <ion-button routerLink="/add-expense" class="app-button">
+        Agregar primer gasto
+      </ion-button>
+    </app-empty-state>
+  </div>
+
+  <!-- Botón flotante para agregar gasto -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/add-expense">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

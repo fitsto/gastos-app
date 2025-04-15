@@ -1,4 +1,3 @@
-import { InjectionToken } from '@angular/core';
 import { Expense } from './expense.entity';
 
 export interface IExpenseRepository {
@@ -9,5 +8,3 @@ export interface IExpenseRepository {
   findByMonth(userId: string, year: number, month: number): Promise<Expense[]>;
   findAll(userId: string): Promise<Expense[]>;
 }
-
-export const ExpenseRepository = new InjectionToken<IExpenseRepository>('ExpenseRepository');

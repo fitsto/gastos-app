@@ -1,0 +1,169 @@
+.tablet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.app-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  p {
+    margin: 0.5rem 0 1.5rem;
+  }
+}
+
+.welcome-header {
+  padding: var(--app-spacing-sm) 0;
+
+  h1 {
+    font-size: var(--app-title-size);
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--app-spacing-xs);
+    color: var(--app-text-primary);
+
+    ion-icon {
+      font-size: 24px;
+      color: var(--ion-color-warning);
+    }
+  }
+}
+
+.main-content {
+  max-width: 768px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.amount-card {
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
+  border-radius: var(--app-border-radius);
+  padding: var(--app-spacing-lg);
+  margin-bottom: var(--app-spacing-lg);
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.2);
+
+  .amount-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 var(--app-spacing-xs);
+  }
+
+  .amount-subtitle {
+    font-size: var(--app-text-size);
+    margin: 0;
+    opacity: 0.9;
+  }
+}
+
+.chart-container {
+  background: var(--app-background);
+  border-radius: var(--app-border-radius);
+  padding: var(--app-spacing-md);
+  margin-bottom: var(--app-spacing-lg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  height: 300px;
+}
+
+.budget-progress {
+  background: var(--app-background);
+  border-radius: var(--app-border-radius);
+  padding: var(--app-spacing-md);
+  margin-bottom: var(--app-spacing-lg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+  h3 {
+    font-size: var(--app-subtitle-size);
+    font-weight: 600;
+    margin: 0 0 var(--app-spacing-md);
+    color: var(--app-text-primary);
+  }
+}
+
+.progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-spacing-md);
+}
+
+.progress-item {
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--app-spacing-xs);
+
+    .category-name {
+      font-size: var(--app-text-size);
+      color: var(--app-text-primary);
+    }
+
+    .progress-percentage {
+      font-size: var(--app-text-size);
+      color: var(--app-text-secondary);
+    }
+  }
+
+  ion-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    --buffer-background: rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+}
+
+.action-buttons {
+  display: grid;
+  gap: var(--app-spacing-sm);
+  margin: var(--app-spacing-lg) 0;
+
+  ion-button {
+    --border-radius: var(--app-border-radius);
+    height: 48px;
+    font-weight: 500;
+
+    ion-icon {
+      margin-right: var(--app-spacing-xs);
+    }
+  }
+}
+
+ion-fab-button {
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .amount-card {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .chart-container,
+  .budget-progress {
+    background: rgba(255,255,255,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+}
+
+@media (min-width: 768px) {
+  .action-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

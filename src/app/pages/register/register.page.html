@@ -1,22 +1,22 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Iniciar Sesión</ion-title>
+    <ion-title>Registro</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="ion-text-center ion-padding">
-    <h1>Gastos App</h1>
-    <p>Controla tus finanzas de manera sencilla</p>
+    <h1>Crear Cuenta</h1>
+    <p>Únete a Gastos App</p>
   </div>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <ion-item class="app-input">
       <ion-label position="floating">Email</ion-label>
       <ion-input
         type="email"
         formControlName="email"
-        [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        required
       ></ion-input>
     </ion-item>
 
@@ -25,26 +25,31 @@
       <ion-input
         type="password"
         formControlName="password"
-        [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        required
       ></ion-input>
     </ion-item>
 
-    <ion-text color="danger" *ngIf="error" class="ion-padding">
-      <p>{{ error }}</p>
-    </ion-text>
+    <ion-item class="app-input">
+      <ion-label position="floating">Confirmar Contraseña</ion-label>
+      <ion-input
+        type="password"
+        formControlName="confirmPassword"
+        required
+      ></ion-input>
+    </ion-item>
 
     <ion-button
       expand="block"
       type="submit"
-      [disabled]="loginForm.invalid || isLoading"
+      [disabled]="!registerForm.valid || isLoading"
     >
-      {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+      Registrarse
     </ion-button>
 
     <div class="ion-text-center ion-padding">
       <p>
-        ¿No tienes cuenta?
-        <a routerLink="/register">Regístrate</a>
+        ¿Ya tienes una cuenta?
+        <a routerLink="/login">Inicia sesión</a>
       </p>
     </div>
   </form>

@@ -1,0 +1,127 @@
+ion-item {
+  margin-bottom: 1rem;
+}
+
+ion-text[color="danger"] {
+  font-size: 0.8rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.expense-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--app-spacing-md);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.form-group {
+  margin-bottom: var(--app-spacing-lg);
+
+  ion-label {
+    display: block;
+    margin-bottom: var(--app-spacing-xs);
+    font-size: var(--app-text-size);
+    font-weight: 500;
+    color: var(--app-text-primary);
+  }
+
+  ion-item {
+    --padding-start: var(--app-spacing-md);
+    --padding-end: var(--app-spacing-md);
+    --border-radius: var(--app-border-radius);
+    --background: var(--app-background);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: var(--app-spacing-xs);
+
+    &.item-has-focus {
+      --highlight-background: var(--ion-color-primary);
+    }
+  }
+}
+
+.amount-group {
+  .amount-input {
+    --padding-start: var(--app-spacing-sm);
+
+    ion-label {
+      margin: 0;
+      margin-right: var(--app-spacing-xs);
+      font-size: var(--app-subtitle-size);
+      font-weight: 600;
+    }
+
+    .amount-value {
+      font-size: var(--app-subtitle-size);
+      font-weight: 600;
+    }
+  }
+}
+
+.date-input {
+  ion-datetime-button::part(native) {
+    padding: 0;
+  }
+}
+
+.category-input {
+  ion-select {
+    width: 100%;
+    max-width: 100%;
+    padding: var(--app-spacing-xs) 0;
+
+    &::part(icon) {
+      color: var(--ion-color-medium);
+    }
+  }
+
+  ion-select-option {
+    ion-icon {
+      margin-right: var(--app-spacing-xs);
+      vertical-align: middle;
+    }
+  }
+}
+
+.description-input {
+  ion-textarea {
+    --padding-top: var(--app-spacing-sm);
+    --padding-bottom: var(--app-spacing-sm);
+    min-height: 100px;
+  }
+}
+
+.error-message {
+  margin-top: var(--app-spacing-xs);
+  padding: 0 var(--app-spacing-sm);
+  font-size: var(--app-label-size);
+
+  p {
+    margin: var(--app-spacing-xs) 0;
+  }
+}
+
+.form-actions {
+  display: grid;
+  gap: var(--app-spacing-sm);
+  margin-top: var(--app-spacing-xl);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  ion-button {
+    margin: 0;
+    height: 48px;
+    --border-radius: var(--app-border-radius);
+    font-weight: 500;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-group ion-item {
+    --background: rgba(255,255,255,0.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+}

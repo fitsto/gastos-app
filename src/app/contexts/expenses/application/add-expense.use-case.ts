@@ -1,13 +1,10 @@
-import { Injectable, Inject } from '@angular/core';
-import { Expense } from '../domain/expense.entity';
-import { ExpenseRepository, IExpenseRepository } from '../domain/expense.repository';
 
-@Injectable({
-  providedIn: 'root'
-})
+import { Expense } from '../domain/expense.entity';
+import { IExpenseRepository } from '../domain/expense.repository';
+
 export class AddExpenseUseCase {
   constructor(
-    @Inject(ExpenseRepository) private expenseRepository: IExpenseRepository
+    private expenseRepository: IExpenseRepository
   ) {}
 
   async execute(expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {

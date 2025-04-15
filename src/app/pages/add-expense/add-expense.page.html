@@ -1,0 +1,119 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Agregar gasto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form">
+    <!-- Monto -->
+    <div class="form-group amount-group">
+      <ion-label>Monto:</ion-label>
+      <ion-item class="amount-input">
+        <ion-label>$</ion-label>
+        <ion-input
+          type="number"
+          formControlName="amount"
+          placeholder="0"
+          inputmode="decimal"
+          class="amount-value"
+        ></ion-input>
+      </ion-item>
+      <ion-text color="danger" class="error-message" *ngIf="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched">
+        <p *ngIf="expenseForm.get('amount')?.errors?.['required']">El monto es requerido</p>
+        <p *ngIf="expenseForm.get('amount')?.errors?.['min']">El monto debe ser mayor a 0</p>
+      </ion-text>
+    </div>
+
+    <!-- Fecha -->
+    <div class="form-group">
+      <ion-label>Fecha:</ion-label>
+      <ion-item class="date-input">
+        <ion-datetime-button datetime="expense-date"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime
+              id="expense-date"
+              formControlName="date"
+              presentation="date"
+              [preferWheel]="true"
+              locale="es-ES"
+            ></ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </ion-item>
+    </div>
+
+    <!-- Categoría -->
+    <div class="form-group">
+      <ion-label>Categoría:</ion-label>
+      <ion-item class="category-input">
+        <ion-select
+          formControlName="categoryId"
+          interface="action-sheet"
+          [interfaceOptions]="{ header: 'Selecciona una categoría' }"
+        >
+          <ion-select-option value="food">
+            <ion-icon name="restaurant-outline"></ion-icon>
+            Alimentación
+          </ion-select-option>
+          <ion-select-option value="transport">
+            <ion-icon name="car-outline"></ion-icon>
+            Transporte
+          </ion-select-option>
+          <ion-select-option value="entertainment">
+            <ion-icon name="game-controller-outline"></ion-icon>
+            Entretenimiento
+          </ion-select-option>
+          <ion-select-option value="bills">
+            <ion-icon name="receipt-outline"></ion-icon>
+            Servicios
+          </ion-select-option>
+          <ion-select-option value="other">
+            <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+            Otros
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-text color="danger" class="error-message" *ngIf="expenseForm.get('categoryId')?.invalid && expenseForm.get('categoryId')?.touched">
+        <p>Selecciona una categoría</p>
+      </ion-text>
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-group">
+      <ion-label>Descripción:</ion-label>
+      <ion-item class="description-input">
+        <ion-textarea
+          formControlName="description"
+          rows="3"
+          placeholder="Agrega una descripción opcional"
+          [counter]="true"
+          maxlength="100"
+        ></ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <ion-button
+        expand="block"
+        color="medium"
+        fill="outline"
+        (click)="cancel()"
+      >
+        Cancelar
+      </ion-button>
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="expenseForm.invalid || isSubmitting"
+      >
+        {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

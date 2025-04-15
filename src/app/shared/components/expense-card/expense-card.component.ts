@@ -7,43 +7,23 @@ import { Expense } from '../../../contexts/expenses/domain/expense.entity';
   selector: 'app-expense-card',
   standalone: true,
   imports: [CommonModule, IonicModule],
-  template: `
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>{{ categoryName }}</ion-card-subtitle>
-        <ion-card-title>{{ expense.amount | currency }}</ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p>{{ expense.description || 'Sin descripción' }}</p>
-        <p class="date">{{ expense.date | date:'dd/MM/yyyy' }}</p>
-      </ion-card-content>
-
-      <ion-buttons>
-        <ion-button fill="clear" (click)="onEdit.emit(expense)">
-          <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-        <ion-button fill="clear" color="danger" (click)="onDelete.emit(expense.id)">
-          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-card>
-  `,
-  styles: [`
-    .date {
-      color: var(--ion-color-medium);
-      font-size: 0.9em;
-      margin-top: 8px;
-    }
-
-    ion-buttons {
-      padding: 8px;
-    }
-  `]
+  templateUrl: './expense-card.component.html',
+  styleUrls: ['./expense-card.component.scss']
 })
 export class ExpenseCardComponent {
   @Input() expense!: Expense;
-  @Input() categoryName!: string;
-  @Output() onEdit = new EventEmitter<Expense>();
-  @Output() onDelete = new EventEmitter<string>();
+  @Input() categoryName: string = '';
+  @Output() edit = new EventEmitter<Expense>();
+  @Output() delete = new EventEmitter<string>();
+
+  getCategoryColor(categoryId: string): string {
+    const colors: { [key: string]: string } = {
+      'food': '#4CAF50',
+      'transport': '#2196F3',
+      'entertainment': '#FFC107',
+      'bills': '#9C27B0',
+      'other': '#757575'
+    };
+    return colors[categoryId] || colors['other'];
+  }
 }

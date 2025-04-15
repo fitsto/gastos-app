@@ -1,106 +1,125 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
-import { ExpenseCardComponent } from '../../shared/components/expense-card/expense-card.component';
+import { Chart, registerables } from 'chart.js';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
-import { ExpenseRepository, IExpenseRepository } from '../../contexts/expenses/domain/expense.repository';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-home',
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterLink, ExpenseCardComponent],
-  template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Mis Gastos</ion-title>
-        <ion-buttons slot="end">
-          <ion-button routerLink="/add-expense">
-            <ion-icon name="add-outline" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content>
-      <div class="ion-padding">
-        <!-- Resumen del mes -->
-        <ion-card>
-          <ion-card-header>
-            <ion-card-subtitle>Total del Mes</ion-card-subtitle>
-            <ion-card-title>{{ totalAmount | currency }}</ion-card-title>
-          </ion-card-header>
-        </ion-card>
-
-        <!-- Lista de gastos -->
-        <div class="tablet-grid">
-          <app-expense-card
-            *ngFor="let expense of expenses"
-            [expense]="expense"
-            [categoryName]="getCategoryName(expense.categoryId)"
-            (onEdit)="handleEdit($event)"
-            (onDelete)="handleDelete($event)"
-          ></app-expense-card>
-        </div>
-
-        <!-- Estado vacío -->
-        <div *ngIf="expenses.length === 0" class="app-empty-state">
-          <ion-icon name="wallet-outline" size="large"></ion-icon>
-          <h2>No hay gastos registrados</h2>
-          <p>Comienza agregando tu primer gasto</p>
-          <ion-button routerLink="/add-expense" class="app-button">
-            Agregar Gasto
-          </ion-button>
-        </div>
-      </div>
-    </ion-content>
-  `
+  imports: [
+    CommonModule,
+    IonicModule,
+    RouterLink,
+    EmptyStateComponent
+  ]
 })
 export class HomePage implements OnInit {
+  @ViewChild('expensesChart') private chartCanvas!: ElementRef;
+
+  private expenseRepository = inject(ExpenseSupabaseRepository);
+  private chart: Chart | null = null;
+
+  userName: string = 'Felipe';
   expenses: Expense[] = [];
   totalAmount: number = 0;
-
-  constructor(
-    @Inject(ExpenseRepository) private expenseRepository: IExpenseRepository
-  ) {}
+  categoryProgress = [
+    { name: 'Transporte', percentage: 80, color: 'primary' },
+    { name: 'Comida', percentage: 40, color: 'success' }
+  ];
 
   ngOnInit() {
     this.loadExpenses();
   }
 
   async loadExpenses() {
-    // TODO: Obtener el userId del servicio de autenticación
-    const userId = 'current-user-id';
     const currentDate = new Date();
     this.expenses = await this.expenseRepository.findByMonth(
-      userId,
+      'current-user-id',
       currentDate.getFullYear(),
       currentDate.getMonth() + 1
     );
     this.calculateTotal();
+    this.initChart();
   }
 
-  calculateTotal() {
-    this.totalAmount = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  private calculateTotal() {
+    this.totalAmount = this.expenses.reduce((total, expense) => total + expense.amount, 0);
+  }
+
+  private initChart() {
+    if (!this.chartCanvas) return;
+
+    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+
+    // Agrupar gastos por categoría
+    const expensesByCategory = this.expenses.reduce((acc, expense) => {
+      const category = this.getCategoryName(expense.categoryId);
+      acc[category] = (acc[category] || 0) + expense.amount;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    const data = {
+      labels: Object.keys(expensesByCategory),
+      datasets: [{
+        data: Object.values(expensesByCategory),
+        backgroundColor: [
+          '#4CAF50', // Verde
+          '#2196F3', // Azul
+          '#FFC107', // Amarillo
+          '#9C27B0', // Morado
+          '#757575'  // Gris
+        ]
+      }]
+    };
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    this.chart = new Chart(ctx, {
+      type: 'pie',
+      data: data,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 12,
+                family: "'Roboto', sans-serif"
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   getCategoryName(categoryId: string): string {
-    // TODO: Implementar obtención del nombre de la categoría
-    return 'Categoría';
+    const categories: { [key: string]: string } = {
+      'food': 'Alimentación',
+      'transport': 'Transporte',
+      'entertainment': 'Entretenimiento',
+      'bills': 'Servicios',
+      'other': 'Otros'
+    };
+    return categories[categoryId] || 'Desconocida';
   }
 
   async handleEdit(expense: Expense) {
     // TODO: Implementar navegación a la página de edición
-    console.log('Editar gasto:', expense);
   }
 
-  async handleDelete(id: string) {
-    try {
-      await this.expenseRepository.delete(id);
-      this.expenses = this.expenses.filter(expense => expense.id !== id);
-      this.calculateTotal();
-    } catch (error) {
-      console.error('Error al eliminar gasto:', error);
-    }
+  async handleDelete(expenseId: string) {
+    // TODO: Implementar eliminación de gasto
   }
 }

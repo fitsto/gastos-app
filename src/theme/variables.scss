@@ -6,15 +6,13 @@
   --ion-color-primary: #3E8ED0;
   --ion-color-primary-rgb: 62, 142, 208;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #377db7;
-  --ion-color-primary-tint: #519ad5;
+  --ion-color-primary-shade: #377dc7;
+  --ion-color-primary-tint: #519ed5;
 
   /** secondary **/
   --ion-color-secondary: #F4A261;
   --ion-color-secondary-rgb: 244, 162, 97;
   --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-contrast-rgb: 0, 0, 0;
   --ion-color-secondary-shade: #d78f55;
   --ion-color-secondary-tint: #f5ab71;
 
@@ -27,6 +25,28 @@
   /** fonts **/
   --ion-font-family: 'Roboto', sans-serif;
   font-family: 'Roboto', sans-serif;
+
+  // Variables personalizadas
+  --app-background: #FFFFFF;
+  --app-text-primary: #2D2D2D;
+  --app-text-secondary: #6E6E6E;
+  --app-border-radius: 8px;
+  --app-padding: 16px;
+  --app-margin: 16px;
+
+  // Tipografía
+  --app-font-family: 'Roboto', sans-serif;
+  --app-title-size: 24px;
+  --app-subtitle-size: 18px;
+  --app-text-size: 14px;
+  --app-label-size: 12px;
+
+  // Espaciado
+  --app-spacing-xs: 4px;
+  --app-spacing-sm: 8px;
+  --app-spacing-md: 16px;
+  --app-spacing-lg: 24px;
+  --app-spacing-xl: 32px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +55,16 @@
     --ion-background-color-rgb: 18, 18, 18;
     --ion-text-color: #ffffff;
     --ion-text-color-rgb: 255, 255, 255;
+
+    --app-background: #121212;
+    --app-text-primary: #F5F5F5;
+    --app-text-secondary: #B0BEC5;
+
+    --ion-color-primary: #64A5D8;
+    --ion-color-primary-rgb: 100, 165, 216;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-shade: #5891be;
+    --ion-color-primary-tint: #74aedc;
   }
 }
 
@@ -92,7 +122,7 @@
 
 /* Animaciones */
 .fade-in {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -107,4 +137,64 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
+}
+
+// Estilos globales
+body {
+  font-family: var(--app-font-family);
+  color: var(--app-text-primary);
+  background-color: var(--app-background);
+}
+
+// Utilidades de tipografía
+.title {
+  font-size: var(--app-title-size);
+  font-weight: 600;
+  margin-bottom: var(--app-spacing-md);
+}
+
+.subtitle {
+  font-size: var(--app-subtitle-size);
+  font-weight: 400;
+  margin-bottom: var(--app-spacing-sm);
+}
+
+.text {
+  font-size: var(--app-text-size);
+  line-height: 1.5;
+}
+
+.label {
+  font-size: var(--app-label-size);
+  color: var(--app-text-secondary);
+}
+
+// Utilidades de espaciado
+.padding {
+  padding: var(--app-padding);
+}
+
+.margin {
+  margin: var(--app-margin);
+}
+
+// Animaciones
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+// Clases de animación
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.bounce {
+  animation: bounce 0.3s ease-in-out;
 }

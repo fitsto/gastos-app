@@ -20,24 +20,35 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   async create(expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .insert([expense])
-      .select()
+      .insert([{
+        user_id: expense.userId,
+        category_id: expense.categoryId,
+        amount: expense.amount,
+        description: expense.description,
+        date: expense.date
+      }])
+      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
       .single();
 
     if (error) throw error;
-    return data;
+    return this.mapToExpense(data);
   }
 
   async update(id: string, expense: Partial<Expense>): Promise<Expense> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .update(expense)
+      .update({
+        category_id: expense.categoryId,
+        amount: expense.amount,
+        description: expense.description,
+        date: expense.date
+      })
       .eq('id', id)
-      .select()
+      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
       .single();
 
     if (error) throw error;
-    return data;
+    return this.mapToExpense(data);
   }
 
   async delete(id: string): Promise<void> {
@@ -52,12 +63,12 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   async findById(id: string): Promise<Expense | null> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .select()
+      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data;
+    return data ? this.mapToExpense(data) : null;
   }
 
   async findByMonth(userId: string, year: number, month: number): Promise<Expense[]> {
@@ -66,22 +77,35 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
 
     const { data, error } = await this.supabase
       .from('expenses')
-      .select()
-      .eq('userId', userId)
+      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .eq('user_id', userId)
       .gte('date', startDate)
       .lte('date', endDate);
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.mapToExpense);
   }
 
   async findAll(userId: string): Promise<Expense[]> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .select()
-      .eq('userId', userId);
+      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .eq('user_id', userId);
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.mapToExpense);
+  }
+
+  private mapToExpense(data: any): Expense {
+    return {
+      id: data.id,
+      userId: data.user_id,
+      categoryId: data.category_id,
+      amount: data.amount,
+      description: data.description,
+      date: new Date(data.date),
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at)
+    };
   }
 }

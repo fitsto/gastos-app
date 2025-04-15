@@ -1,0 +1,102 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Historial de Gastos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="history-content">
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <ion-button
+          class="date-button"
+          fill="outline"
+          (click)="openDatePicker()"
+        >
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          {{ selectedMonth | monthYear }}
+          <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
+        </ion-button>
+
+        <ion-modal
+          #dateModal
+          [breakpoints]="[0, 0.4]"
+          [initialBreakpoint]="0.4"
+          class="date-picker-modal"
+        >
+          <ng-template>
+            <ion-content>
+              <ion-datetime
+                presentation="month-year"
+                [preferWheel]="true"
+                [(ngModel)]="selectedMonth"
+                (ionChange)="onDateChange($event)"
+                locale="es-ES"
+                class="date-picker"
+              ></ion-datetime>
+            </ion-content>
+          </ng-template>
+        </ion-modal>
+
+        <div class="category-chips">
+          <app-category-chip
+            *ngFor="let category of categories"
+            [name]="category.name"
+            [color]="category.color"
+            [selected]="selectedCategory === category.id"
+            (click)="selectCategory(category.id)"
+          ></app-category-chip>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="summary-card">
+      <div class="summary-header">
+        <h2>Total del período</h2>
+        <span class="total-amount">{{ filteredTotal | currency }}</span>
+      </div>
+    </div>
+
+    <!-- Lista de gastos -->
+    <div class="expenses-list">
+      <!-- Agrupación por fecha -->
+      <div *ngFor="let group of groupedExpenses" class="expense-group">
+        <div class="date-header">
+          <span class="date">{{ group.date | date:'dd MMM' }}</span>
+          <span class="total">{{ group.total | currency }}</span>
+        </div>
+
+        <app-expense-card
+          *ngFor="let expense of group.expenses"
+          [expense]="expense"
+          [categoryName]="getCategoryName(expense.categoryId)"
+          (edit)="handleEdit($event)"
+          (delete)="handleDelete($event)"
+          class="expense-item"
+        ></app-expense-card>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <app-empty-state *ngIf="filteredExpenses.length === 0">
+      <ion-icon name="calendar-outline" slot="icon"></ion-icon>
+      <h2>No hay gastos en este período</h2>
+      <p>Intenta cambiar los filtros o agrega un nuevo gasto</p>
+      <ion-button routerLink="/add-expense" class="app-button">
+        Agregar gasto
+      </ion-button>
+    </app-empty-state>
+  </div>
+
+  <!-- Botón flotante -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/add-expense">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

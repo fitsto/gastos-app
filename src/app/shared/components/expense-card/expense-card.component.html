@@ -1,0 +1,29 @@
+<ion-card class="expense-card fade-in">
+  <ion-card-content>
+    <div class="expense-header">
+      <div class="category-info">
+        <div class="category-dot" [style.background-color]="getCategoryColor(expense.categoryId)"></div>
+        <ion-text class="category-name">{{ categoryName }}</ion-text>
+      </div>
+      <ion-text color="dark" class="amount">{{ expense.amount | currency }}</ion-text>
+    </div>
+
+    <div class="expense-details">
+      <ion-text color="medium" class="date">
+        {{ expense.date | date:'dd MMM' }}
+      </ion-text>
+      <ion-text color="medium" class="description" *ngIf="expense.description">
+        {{ expense.description }}
+      </ion-text>
+    </div>
+
+    <div class="expense-actions">
+      <ion-button fill="clear" (click)="edit.emit(expense)">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" color="danger" (click)="delete.emit(expense.id)">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>

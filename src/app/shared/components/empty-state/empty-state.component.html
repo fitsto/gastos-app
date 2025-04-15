@@ -1,0 +1,8 @@
+<div class="empty-state slide-up">
+  <ion-icon [name]="icon" size="large"></ion-icon>
+  <h2>{{ title }}</h2>
+  <p>{{ message }}</p>
+  <ion-button *ngIf="buttonText" (click)="buttonClick.emit()">
+    {{ buttonText }}
+  </ion-button>
+</div>
