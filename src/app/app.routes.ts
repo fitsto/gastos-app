@@ -37,5 +37,10 @@ export const routes: Routes = [
     path: 'categories',
     loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage),
     canActivate: [authGuard]
+  },
+  {
+    path: 'edit-expense/:id',
+    loadComponent: () => import('./pages/edit-expense/edit-expense.page').then(m => m.EditExpensePage),
+    canActivate: [authGuard]
   }
 ];

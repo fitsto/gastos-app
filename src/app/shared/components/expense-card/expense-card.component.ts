@@ -4,6 +4,8 @@ import { IonicModule } from '@ionic/angular';
 import { Expense } from '../../../contexts/expenses/domain/expense.entity';
 import { Category } from '../../../contexts/categories/domain/category.entity';
 import { ChileanCurrencyPipe } from '../../pipes/chilean-currency.pipe';
+import { addIcons } from 'ionicons';
+import { createOutline, trashOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-expense-card',
@@ -18,4 +20,7 @@ export class ExpenseCardComponent {
   @Output() edit = new EventEmitter<Expense>();
   @Output() delete = new EventEmitter<string>();
 
+  constructor() {
+    addIcons({ createOutline, trashOutline });
+  }
 }

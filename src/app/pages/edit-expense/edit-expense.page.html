@@ -13,10 +13,13 @@
     <ion-item>
       <ion-label position="floating">Monto</ion-label>
       <ion-input
-        type="number"
+        type="text"
         formControlName="amount"
         placeholder="0.00"
-        inputmode="decimal"
+        inputmode="numeric"
+        (focus)="onAmountFocus()"
+        (blur)="onAmountBlur()"
+        [value]="showRawAmount ? expenseForm.get('amount')?.value : formattedAmount"
       ></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched">
@@ -27,11 +30,9 @@
     <ion-item>
       <ion-label position="floating">Categoría</ion-label>
       <ion-select formControlName="categoryId">
-        <ion-select-option value="food">Alimentación</ion-select-option>
-        <ion-select-option value="transport">Transporte</ion-select-option>
-        <ion-select-option value="entertainment">Entretenimiento</ion-select-option>
-        <ion-select-option value="bills">Servicios</ion-select-option>
-        <ion-select-option value="other">Otros</ion-select-option>
+        <ion-select-option *ngFor="let category of categories" [value]="category.id">
+          {{ category.name }}
+        </ion-select-option>
       </ion-select>
     </ion-item>
     <ion-text color="danger" *ngIf="expenseForm.get('categoryId')?.invalid && expenseForm.get('categoryId')?.touched">
