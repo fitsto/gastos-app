@@ -1,195 +1,155 @@
-import { Component, OnInit, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton, IonItemGroup, IonItem, IonLabel, IonSelect, IonSelectOption, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonIcon } from '@ionic/angular/standalone';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule, IonModal } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { ExpenseCardComponent } from '../../shared/components/expense-card/expense-card.component';
+import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
-import { ExpenseRepository, IExpenseRepository } from '../../contexts/expenses/domain/expense.repository';
+import { MonthYearPipe } from '../../shared/pipes/month-year.pipe';
+
+interface ExpenseGroup {
+  date: string;
+  total: number;
+  expenses: Expense[];
+}
 
 @Component({
   selector: 'app-history',
+  templateUrl: './history.page.html',
+  styleUrls: ['./history.page.scss'],
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     CommonModule,
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonBackButton,
-    IonItemGroup,
-    IonItem,
-    IonLabel,
-    IonSelect,
-    IonSelectOption,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
-    IonIcon,
-    ExpenseCardComponent
-  ],
-  template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Historial de Gastos</ion-title>
-        <ion-buttons slot="start">
-          <ion-back-button defaultHref="/home"></ion-back-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content>
-      <div class="ion-padding">
-        <!-- Filtros -->
-        <ion-item-group>
-          <ion-item>
-            <ion-label>Mes</ion-label>
-            <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
-              <ion-select-option *ngFor="let month of months" [value]="month.value">
-                {{ month.label }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item>
-            <ion-label>Categoría</ion-label>
-            <ion-select [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
-              <ion-select-option value="">Todas</ion-select-option>
-              <ion-select-option value="food">Alimentación</ion-select-option>
-              <ion-select-option value="transport">Transporte</ion-select-option>
-              <ion-select-option value="entertainment">Entretenimiento</ion-select-option>
-              <ion-select-option value="bills">Servicios</ion-select-option>
-              <ion-select-option value="other">Otros</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-item-group>
-
-        <!-- Resumen -->
-        <ion-card>
-          <ion-card-header>
-            <ion-card-subtitle>Total Filtrado</ion-card-subtitle>
-            <ion-card-title>{{ filteredTotal | currency }}</ion-card-title>
-          </ion-card-header>
-        </ion-card>
-
-        <!-- Lista de gastos -->
-        <div class="tablet-grid">
-          <app-expense-card
-            *ngFor="let expense of filteredExpenses"
-            [expense]="expense"
-            [categoryName]="getCategoryName(expense.categoryId)"
-            (onEdit)="handleEdit($event)"
-            (onDelete)="handleDelete($event)"
-          ></app-expense-card>
-        </div>
-
-        <!-- Estado vacío -->
-        <div *ngIf="filteredExpenses.length === 0" class="app-empty-state">
-          <ion-icon name="time-outline" size="large"></ion-icon>
-          <h2>No hay gastos en este período</h2>
-          <p>Intenta cambiar los filtros o agregar un nuevo gasto</p>
-        </div>
-      </div>
-    </ion-content>
-  `,
-  styles: [`
-    .tablet-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .app-empty-state {
-      text-align: center;
-      padding: 32px;
-      color: var(--ion-color-medium);
-    }
-
-    .app-empty-state ion-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-  `]
+    FormsModule,
+    IonicModule,
+    ExpenseCardComponent,
+    CategoryChipComponent,
+    EmptyStateComponent,
+    MonthYearPipe
+  ]
 })
 export class HistoryPage implements OnInit {
+  @ViewChild('dateModal') dateModal!: IonModal;
+
+  private router = inject(Router);
+  private expenseRepository = inject(ExpenseSupabaseRepository);
+
+  selectedMonth = new Date().toISOString();
+  selectedCategory = '';
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
-  filteredTotal: number = 0;
-  selectedMonth: string = '';
-  selectedCategory: string = '';
-  months = [
-    { value: '1', label: 'Enero' },
-    { value: '2', label: 'Febrero' },
-    { value: '3', label: 'Marzo' },
-    { value: '4', label: 'Abril' },
-    { value: '5', label: 'Mayo' },
-    { value: '6', label: 'Junio' },
-    { value: '7', label: 'Julio' },
-    { value: '8', label: 'Agosto' },
-    { value: '9', label: 'Septiembre' },
-    { value: '10', label: 'Octubre' },
-    { value: '11', label: 'Noviembre' },
-    { value: '12', label: 'Diciembre' }
-  ];
+  groupedExpenses: ExpenseGroup[] = [];
+  filteredTotal = 0;
 
-  constructor(
-    @Inject(ExpenseRepository) private expenseRepository: IExpenseRepository
-  ) {
-    const currentDate = new Date();
-    this.selectedMonth = (currentDate.getMonth() + 1).toString();
-  }
+  categories = [
+    { id: '', name: 'Todas', color: 'medium' },
+    { id: 'food', name: 'Alimentación', color: 'success' },
+    { id: 'transport', name: 'Transporte', color: 'primary' },
+    { id: 'entertainment', name: 'Entretenimiento', color: 'warning' },
+    { id: 'bills', name: 'Servicios', color: 'secondary' },
+    { id: 'other', name: 'Otros', color: 'medium' }
+  ];
 
   ngOnInit() {
     this.loadExpenses();
   }
 
   async loadExpenses() {
-    // TODO: Obtener el userId del servicio de autenticación
-    const userId = 'current-user-id';
-    this.expenses = await this.expenseRepository.findAll(userId);
+    const date = new Date(this.selectedMonth);
+    this.expenses = await this.expenseRepository.findByMonth(
+      'current-user-id',
+      date.getFullYear(),
+      date.getMonth() + 1
+    );
     this.applyFilters();
   }
 
   applyFilters() {
-    this.filteredExpenses = this.expenses.filter(expense => {
-      const expenseDate = new Date(expense.date);
-      const matchesMonth = !this.selectedMonth ||
-        (expenseDate.getMonth() + 1).toString() === this.selectedMonth;
-      const matchesCategory = !this.selectedCategory ||
-        expense.categoryId === this.selectedCategory;
+    // Filtrar por categoría
+    this.filteredExpenses = this.selectedCategory
+      ? this.expenses.filter(expense => expense.categoryId === this.selectedCategory)
+      : [...this.expenses];
 
-      return matchesMonth && matchesCategory;
-    });
-
-    this.calculateTotal();
-  }
-
-  calculateTotal() {
+    // Calcular total
     this.filteredTotal = this.filteredExpenses.reduce(
-      (sum, expense) => sum + expense.amount,
+      (total, expense) => total + expense.amount,
       0
+    );
+
+    // Agrupar por fecha
+    const groups = this.filteredExpenses.reduce((acc, expense) => {
+      const date = new Date(expense.date).toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = {
+          date,
+          total: 0,
+          expenses: []
+        };
+      }
+      acc[date].expenses.push(expense);
+      acc[date].total += expense.amount;
+      return acc;
+    }, {} as { [key: string]: ExpenseGroup });
+
+    // Convertir a array y ordenar por fecha descendente
+    this.groupedExpenses = Object.values(groups).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
   }
 
+  selectCategory(categoryId: string) {
+    this.selectedCategory = categoryId;
+    this.applyFilters();
+  }
+
+  async onDateChange(event: any) {
+    this.selectedMonth = event.detail.value;
+    await this.loadExpenses();
+    this.dateModal.dismiss();
+  }
+
+  openDatePicker() {
+    this.dateModal.present();
+  }
+
   getCategoryName(categoryId: string): string {
-    // TODO: Implementar obtención del nombre de la categoría
-    return 'Categoría';
+    const category = this.categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Desconocida';
   }
 
   async handleEdit(expense: Expense) {
-    // TODO: Implementar navegación a la página de edición
-    console.log('Editar gasto:', expense);
+    this.router.navigate(['/edit-expense', expense.id]);
   }
 
-  async handleDelete(id: string) {
+  async handleDelete(expenseId: string) {
     try {
-      await this.expenseRepository.delete(id);
-      this.expenses = this.expenses.filter(expense => expense.id !== id);
+      await this.expenseRepository.delete(expenseId);
+      this.expenses = this.expenses.filter(e => e.id !== expenseId);
       this.applyFilters();
+
+      // Mostrar mensaje de éxito
+      const toast = document.createElement('ion-toast');
+      toast.message = 'Gasto eliminado correctamente';
+      toast.duration = 2000;
+      toast.position = 'bottom';
+      toast.color = 'success';
+      document.body.appendChild(toast);
+      await toast.present();
+
     } catch (error) {
-      console.error('Error al eliminar gasto:', error);
+      console.error('Error al eliminar el gasto:', error);
+
+      // Mostrar mensaje de error
+      const toast = document.createElement('ion-toast');
+      toast.message = 'Error al eliminar el gasto';
+      toast.duration = 3000;
+      toast.position = 'bottom';
+      toast.color = 'danger';
+      document.body.appendChild(toast);
+      await toast.present();
     }
   }
 }
