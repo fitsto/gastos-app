@@ -7,7 +7,9 @@ import { ExpenseCardComponent } from '../../shared/components/expense-card/expen
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
+import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
+import { Category } from '../../contexts/categories/domain/category.entity';
 import { MonthYearPipe } from '../../shared/pipes/month-year.pipe';
 
 interface ExpenseGroup {
@@ -36,25 +38,38 @@ export class HistoryPage implements OnInit {
 
   private router = inject(Router);
   private expenseRepository = inject(ExpenseSupabaseRepository);
+  private categoryRepository = inject(CategorySupabaseRepository);
 
   selectedMonth = new Date().toISOString();
-  selectedCategory = '';
+  selectedCategory = 0;
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
   groupedExpenses: ExpenseGroup[] = [];
   filteredTotal = 0;
-
-  categories = [
-    { id: '', name: 'Todas', color: 'medium' },
-    { id: 'food', name: 'Alimentación', color: 'success' },
-    { id: 'transport', name: 'Transporte', color: 'primary' },
-    { id: 'entertainment', name: 'Entretenimiento', color: 'warning' },
-    { id: 'bills', name: 'Servicios', color: 'secondary' },
-    { id: 'other', name: 'Otros', color: 'medium' }
-  ];
+  categories: Category[] = [];
 
   ngOnInit() {
+    this.loadCategories();
     this.loadExpenses();
+  }
+
+  async loadCategories() {
+    try {
+      // TODO: Obtener el userId del servicio de autenticación
+      const userId = 'current-user-id';
+      this.categories = await this.categoryRepository.findAll(userId);
+
+      // Agregar la opción "Todas" al inicio
+      this.categories.unshift({
+        id: 0,
+        name: 'Todas',
+        color: '#92949c', // Color medium de Ionic
+        user_id: userId,
+        is_default: true
+      });
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
   }
 
   async loadExpenses() {
@@ -70,7 +85,7 @@ export class HistoryPage implements OnInit {
   applyFilters() {
     // Filtrar por categoría
     this.filteredExpenses = this.selectedCategory
-      ? this.expenses.filter(expense => expense.categoryId === this.selectedCategory)
+      ? this.expenses.filter(expense => Number(expense.categoryId) === this.selectedCategory)
       : [...this.expenses];
 
     // Calcular total
@@ -100,7 +115,7 @@ export class HistoryPage implements OnInit {
     );
   }
 
-  selectCategory(categoryId: string) {
+  selectCategory(categoryId: number) {
     this.selectedCategory = categoryId;
     this.applyFilters();
   }
@@ -115,9 +130,14 @@ export class HistoryPage implements OnInit {
     this.dateModal.present();
   }
 
-  getCategoryName(categoryId: string): string {
+  getCategoryName(categoryId: number): string {
     const category = this.categories.find(c => c.id === categoryId);
     return category ? category.name : 'Desconocida';
+  }
+
+  getCategoryColor(categoryId: number): string {
+    const category = this.categories.find(c => c.id === categoryId);
+    return category ? category.color : '#92949c';
   }
 
   async handleEdit(expense: Expense) {

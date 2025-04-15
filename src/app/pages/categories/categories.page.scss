@@ -1,0 +1,26 @@
+.error-message {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.color-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-left: 1rem;
+  border: 1px solid var(--ion-color-medium);
+}
+
+ion-item-sliding {
+  margin-bottom: 0.5rem;
+}
+
+ion-input[type="color"] {
+  --padding-start: 0;
+  height: 44px;
+}
+
+ion-input[type="color"]::part(native) {
+  height: 44px;
+  padding: 0;
+}

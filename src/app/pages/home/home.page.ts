@@ -1,13 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
-import { Chart, registerables } from 'chart.js';
+import { Chart } from 'chart.js/auto';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { IExpenseRepository } from '../../contexts/expenses/domain/expense.repository';
 import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
 import { Expense } from '../../contexts/expenses/domain/expense.entity';
-
-Chart.register(...registerables);
+import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
 
 @Component({
   selector: 'app-home',
@@ -24,12 +24,13 @@ Chart.register(...registerables);
 export class HomePage implements OnInit {
   @ViewChild('expensesChart') private chartCanvas!: ElementRef;
 
-  private expenseRepository = inject(ExpenseSupabaseRepository);
+  private expenseRepository = inject(ExpenseSupabaseRepository) as IExpenseRepository;
+  private getCurrentUserIdUseCase = inject(GetCurrentUserIdUseCase);
   private chart: Chart | null = null;
 
   userName: string = 'Felipe';
   expenses: Expense[] = [];
-  totalAmount: number = 0;
+  total: number = 0;
   categoryProgress = [
     { name: 'Transporte', percentage: 80, color: 'primary' },
     { name: 'Comida', percentage: 40, color: 'success' }
@@ -41,8 +42,9 @@ export class HomePage implements OnInit {
 
   async loadExpenses() {
     const currentDate = new Date();
+    const userId = await this.getCurrentUserIdUseCase.execute();
     this.expenses = await this.expenseRepository.findByMonth(
-      'current-user-id',
+      userId,
       currentDate.getFullYear(),
       currentDate.getMonth() + 1
     );
@@ -51,68 +53,69 @@ export class HomePage implements OnInit {
   }
 
   private calculateTotal() {
-    this.totalAmount = this.expenses.reduce((total, expense) => total + expense.amount, 0);
+    this.total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
   }
 
   private initChart() {
     if (!this.chartCanvas) return;
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    // Destruir el gráfico anterior si existe
+    if (this.chart) {
+      this.chart.destroy();
+    }
 
     // Agrupar gastos por categoría
     const expensesByCategory = this.expenses.reduce((acc, expense) => {
-      const category = this.getCategoryName(expense.categoryId);
-      acc[category] = (acc[category] || 0) + expense.amount;
+      const categoryId = expense.categoryId;
+      if (!acc[categoryId]) {
+        acc[categoryId] = 0;
+      }
+      acc[categoryId] += expense.amount;
       return acc;
     }, {} as { [key: string]: number });
 
+    // Preparar datos para el gráfico
     const data = {
       labels: Object.keys(expensesByCategory),
       datasets: [{
         data: Object.values(expensesByCategory),
         backgroundColor: [
-          '#4CAF50', // Verde
-          '#2196F3', // Azul
-          '#FFC107', // Amarillo
-          '#9C27B0', // Morado
-          '#757575'  // Gris
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#4BC0C0',
+          '#9966FF'
         ]
       }]
     };
 
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
+    // Crear el gráfico
     this.chart = new Chart(ctx, {
-      type: 'pie',
+      type: 'doughnut',
       data: data,
       options: {
         responsive: true,
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              font: {
-                size: 12,
-                family: "'Roboto', sans-serif"
-              }
-            }
+            position: 'bottom'
           }
         }
       }
     });
   }
 
-  getCategoryName(categoryId: string): string {
-    const categories: { [key: string]: string } = {
-      'food': 'Alimentación',
-      'transport': 'Transporte',
-      'entertainment': 'Entretenimiento',
-      'bills': 'Servicios',
-      'other': 'Otros'
+  getCategoryName(categoryId: number): string {
+    const categories: { [key: number]: string } = {
+      1: 'Alimentación',
+      2: 'Transporte',
+      3: 'Entretenimiento',
+      4: 'Servicios',
+      5: 'Otros'
     };
-    return categories[categoryId] || 'Desconocida';
+    return categories[categoryId] || 'Otros';
   }
 
   async handleEdit(expense: Expense) {

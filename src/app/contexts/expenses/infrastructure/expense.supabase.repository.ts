@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Expense } from '../domain/expense.entity';
 import { IExpenseRepository } from '../domain/expense.repository';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,17 +17,11 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
     );
   }
 
-  async create(expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {
+  async create(expense: Omit<Expense, 'id'>): Promise<Expense> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .insert([{
-        user_id: expense.userId,
-        category_id: expense.categoryId,
-        amount: expense.amount,
-        description: expense.description,
-        date: expense.date
-      }])
-      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .insert(expense)
+      .select()
       .single();
 
     if (error) throw error;
@@ -37,14 +31,9 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   async update(id: string, expense: Partial<Expense>): Promise<Expense> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .update({
-        category_id: expense.categoryId,
-        amount: expense.amount,
-        description: expense.description,
-        date: expense.date
-      })
+      .update(expense)
       .eq('id', id)
-      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .select()
       .single();
 
     if (error) throw error;
@@ -63,7 +52,7 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   async findById(id: string): Promise<Expense | null> {
     const { data, error } = await this.supabase
       .from('expenses')
-      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -77,16 +66,18 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
 
     const { data, error } = await this.supabase
       .from('expenses')
-      .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
+      .select('*')
       .eq('user_id', userId)
       .gte('date', startDate)
-      .lte('date', endDate);
+      .lte('date', endDate)
+      .order('date', { ascending: false });
 
     if (error) throw error;
     return (data || []).map(this.mapToExpense);
   }
 
   async findAll(userId: string): Promise<Expense[]> {
+    console.log('userId', userId);
     const { data, error } = await this.supabase
       .from('expenses')
       .select('id, user_id, category_id, amount, description, date, created_at, updated_at')
@@ -99,13 +90,13 @@ export class ExpenseSupabaseRepository implements IExpenseRepository {
   private mapToExpense(data: any): Expense {
     return {
       id: data.id,
-      userId: data.user_id,
-      categoryId: data.category_id,
       amount: data.amount,
-      description: data.description,
-      date: new Date(data.date),
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at)
+      categoryId: data.category_id,
+      date: data.date,
+      description: data.description || '',
+      userId: data.user_id,
+      created_at: data.created_at,
+      updated_at: data.updated_at
     };
   }
 }

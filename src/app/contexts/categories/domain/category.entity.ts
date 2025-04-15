@@ -1,8 +1,8 @@
 export interface Category {
-  id: string;
+  id: number;
+  user_id: string;
   name: string;
   color: string;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  is_default: boolean;
+  created_at?: string;
 }

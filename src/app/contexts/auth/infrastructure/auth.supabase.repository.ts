@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { SupabaseClient, createClient } from '@supabase/supabase-js';
 import { IAuthRepository, AuthRepository } from '../domain/auth.repository';
 import { User } from '../domain/user.entity';
+import { SessionResponse } from '../domain/session.entity';
 import { UserMapper } from './user.mapper';
 import { SupabaseUser } from './supabase-user.model';
 import { environment } from 'src/environments/environment';
@@ -17,6 +18,36 @@ export class AuthSupabaseRepository implements IAuthRepository {
       environment.supabaseUrl,
       environment.supabaseKey
     );
+  }
+
+  async getCurrentUserId(): Promise<string> {
+    const { data: { user }, error } = await this.supabase.auth.getUser();
+
+    if (error) throw error;
+    if (!user) throw new Error('No user found');
+
+    return user.id;
+  }
+
+  async getSession(): Promise<SessionResponse> {
+    const { data, error } = await this.supabase.auth.getSession();
+
+    if (error) {
+      return { data: { session: null }, error };
+    }
+
+    if (!data.session) {
+      return { data: { session: null }, error: null };
+    }
+
+    const session: SessionResponse['data']['session'] = {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_at: data.session.expires_at ?? 0,
+      user_id: data.session.user.id
+    };
+
+    return { data: { session }, error: null };
   }
 
   async signUp(email: string, password: string): Promise<User> {

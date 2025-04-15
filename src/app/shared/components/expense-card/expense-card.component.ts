@@ -16,14 +16,14 @@ export class ExpenseCardComponent {
   @Output() edit = new EventEmitter<Expense>();
   @Output() delete = new EventEmitter<string>();
 
-  getCategoryColor(categoryId: string): string {
-    const colors: { [key: string]: string } = {
-      'food': '#4CAF50',
-      'transport': '#2196F3',
-      'entertainment': '#FFC107',
-      'bills': '#9C27B0',
-      'other': '#757575'
+  getCategoryColor(categoryId: number): string {
+    const colors: { [key: number]: string } = {
+      1: '#4CAF50', // Alimentación
+      2: '#2196F3', // Transporte
+      3: '#FFC107', // Entretenimiento
+      4: '#9C27B0', // Servicios
+      5: '#757575'  // Otros
     };
-    return colors[categoryId] || colors['other'];
+    return colors[categoryId] || colors[5];
   }
 }
