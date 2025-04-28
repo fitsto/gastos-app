@@ -13,7 +13,7 @@ import {
   IonButtons,
   ModalController
 } from '@ionic/angular/standalone';
-import { Category } from '../../../../contexts/categories/domain/category.entity';
+import { Category } from 'src/contexts/categories/domain/category.entity';
 
 @Component({
   selector: 'app-category-form-modal',

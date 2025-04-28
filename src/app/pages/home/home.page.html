@@ -6,7 +6,7 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button class="action-button" routerLink="/add-expense">
+      <ion-button class="action-button" routerLink="/add-transaction">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -18,12 +18,12 @@
 
   <div class="ion-padding main-content">
     <!-- Estado vacío -->
-    <div class="empty-state" *ngIf="!loading && expenses.length === 0">
+    <div class="empty-state" *ngIf="!loading && transactions.length === 0">
       <ion-icon name="wallet-outline" class="empty-icon"></ion-icon>
       <p>Comienza agregando tu primer gasto.</p>
 
       <div class="empty-actions">
-        <ion-button expand="block" routerLink="/add-expense" class="primary-action">
+        <ion-button expand="block" routerLink="/add-transaction" class="primary-action">
           Agregar primer gasto
         </ion-button>
         <ion-button expand="block" fill="outline" routerLink="/categories">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Contenido cuando hay gastos -->
-    <ng-container *ngIf="!loading && expenses.length > 0">
+    <ng-container *ngIf="!loading && transactions.length > 0">
       <!-- Total del mes -->
       <div class="amount-card">
         <h2 class="amount-title">$ {{ formattedTotal }}</h2>
@@ -60,8 +60,8 @@
   </div>
 
   <!-- Botón flotante para agregar gasto (solo se muestra cuando ya hay gastos) -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="expenses.length > 0">
-    <ion-fab-button routerLink="/add-expense">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="transactions.length > 0">
+    <ion-fab-button routerLink="/add-transaction">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

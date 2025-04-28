@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { Expense } from '../../../contexts/expenses/domain/expense.entity';
-import { Category } from '../../../contexts/categories/domain/category.entity';
+
 import { ChileanCurrencyPipe } from '../../pipes/chilean-currency.pipe';
 import { addIcons } from 'ionicons';
 import { createOutline, trashOutline } from 'ionicons/icons';
+import { Expense } from 'src/contexts/expenses/domain/expense.entity';
+import { Category } from 'src/contexts/categories/domain/category.entity';
 
 @Component({
   selector: 'app-expense-card',

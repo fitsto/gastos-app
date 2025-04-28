@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { GetCurrentUserUseCase } from '../contexts/auth/application/get-current-user.use-case';
+import { GetCurrentUserUseCase } from 'src/contexts/auth/application/get-current-user.use-case';
 
 export const noAuthGuard = async () => {
   const router = inject(Router);

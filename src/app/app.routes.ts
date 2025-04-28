@@ -24,11 +24,6 @@ export const routes: Routes = [
     canActivate: [noAuthGuard]
   },
   {
-    path: 'add-expense',
-    loadComponent: () => import('./pages/add-expense/add-expense.page').then(m => m.AddExpensePage),
-    canActivate: [authGuard]
-  },
-  {
     path: 'history',
     loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage),
     canActivate: [authGuard]
@@ -41,6 +36,16 @@ export const routes: Routes = [
   {
     path: 'edit-expense/:id',
     loadComponent: () => import('./pages/edit-expense/edit-expense.page').then(m => m.EditExpensePage),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'add-transaction',
+    loadComponent: () => import('./pages/add-transaction/add-transaction.page').then(m => m.AddTransactionPage),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'edit-transaction/:id',
+    loadComponent: () => import('./pages/edit-transaction/edit-transaction.page').then(m => m.EditTransactionPage),
     canActivate: [authGuard]
   }
 ];

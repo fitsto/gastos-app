@@ -3,11 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { IExpenseRepository } from '../../contexts/expenses/domain/expense.repository';
-import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
-import { Expense } from '../../contexts/expenses/domain/expense.entity';
-import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
-import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
 import { ChileanCurrencyPipe } from '../../shared/pipes/chilean-currency.pipe';
 import {
   IonContent,
@@ -25,8 +20,12 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, add, timeOutline, listOutline, handLeftOutline, walletOutline } from 'ionicons/icons';
-import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
-import { Category } from '../../contexts/categories/domain/category.entity';
+import { TransactionSupabaseRepository } from 'src/contexts/transactions/infrastructure/transaction.supabase.repository';
+import { CategorySupabaseRepository } from 'src/contexts/categories/infrastructure/category.supabase.repository';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
+import { Transaction } from 'src/contexts/transactions/domain/transaction.entity';
+import { Category } from 'src/contexts/categories/domain/category.entity';
+import { GetCurrentUserIdUseCase } from 'src/contexts/auth/application/get-current-user-id.use-case';
 
 @Component({
   selector: 'app-home',
@@ -54,14 +53,14 @@ import { Category } from '../../contexts/categories/domain/category.entity';
   providers: [ChileanCurrencyPipe]
 })
 export class HomePage implements OnInit {
-  @ViewChild('expensesChart') private chartCanvas!: ElementRef;
+  @ViewChild('transactionsChart') private chartCanvas!: ElementRef;
 
-  private expenseRepository = inject(ExpenseSupabaseRepository);
+  private transactionRepository = inject(TransactionSupabaseRepository);
   private categoryRepository = inject(CategorySupabaseRepository);
   private authRepository = inject(AuthSupabaseRepository);
   private chileanCurrencyPipe = inject(ChileanCurrencyPipe);
 
-  expenses: Expense[] = [];
+  transactions: Transaction[] = [];
   categories: Category[] = [];
   totalAmount = 0;
   loading = true;
@@ -72,40 +71,41 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    this.loadExpensesAndCategories();
+    this.loadTransactionsAndCategories();
   }
 
   ionViewWillEnter() {
-    this.loadExpensesAndCategories();
+    this.loadTransactionsAndCategories();
   }
 
-  async loadExpensesAndCategories() {
+  async loadTransactionsAndCategories() {
     this.loading = true;
     try {
       const currentDate = new Date();
       const getCurrentUserIdUseCase = new GetCurrentUserIdUseCase(this.authRepository);
       const userId = await getCurrentUserIdUseCase.execute();
-      const [expenses, categories] = await Promise.all([
-        this.expenseRepository.findByMonth(
+      const [transactions, categories] = await Promise.all([
+        this.transactionRepository.getTransactionsByMonth(
           userId,
-          currentDate.getFullYear(),
-          currentDate.getMonth() + 1
+          currentDate.getFullYear() + '-' + (currentDate.getMonth() + 1).toString().padStart(2, '0')
         ),
         this.categoryRepository.findAll(userId)
       ]);
-      this.expenses = expenses;
+      this.transactions = transactions;
       this.categories = categories;
       this.calculateTotal();
       this.initChart();
     } catch (error) {
-      console.error('Error al cargar gastos o categorías:', error);
+      console.error('Error al cargar transacciones o categorías:', error);
     } finally {
       this.loading = false;
     }
   }
 
   private calculateTotal() {
-    this.totalAmount = this.expenses.reduce((total, expense) => total + expense.amount, 0);
+    this.totalAmount = this.transactions.reduce((total, transaction) => {
+      return transaction.type === 'expense' ? total - transaction.amount : total + transaction.amount;
+    }, 0);
   }
 
   private initChart() {
@@ -113,20 +113,22 @@ export class HomePage implements OnInit {
       this.chart.destroy();
     }
 
-    if (!this.chartCanvas || this.expenses.length === 0 || this.categories.length === 0) return;
+    if (!this.chartCanvas || this.transactions.length === 0 || this.categories.length === 0) return;
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
     // Agrupar gastos por categoría
-    const expensesByCategory = this.expenses.reduce((acc, expense) => {
-      const categoryId = expense.categoryId;
-      if (!acc[categoryId]) {
-        acc[categoryId] = 0;
-      }
-      acc[categoryId] += expense.amount;
-      return acc;
-    }, {} as { [key: number]: number });
+    const expensesByCategory = this.transactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, transaction) => {
+        const categoryId = transaction.categoryId;
+        if (!acc[categoryId]) {
+          acc[categoryId] = 0;
+        }
+        acc[categoryId] += transaction.amount;
+        return acc;
+      }, {} as { [key: number]: number });
 
     // Filtrar categorías que tienen gastos
     const usedCategories = this.categories.filter(cat => expensesByCategory[cat.id] !== undefined);
@@ -162,7 +164,7 @@ export class HomePage implements OnInit {
   }
 
   get formattedTotal(): string {
-    return this.chileanCurrencyPipe.transform(this.totalAmount);
+    return this.chileanCurrencyPipe.transform(Math.abs(this.totalAmount));
   }
 
   getCategoryName(categoryId: number): string {
@@ -170,11 +172,11 @@ export class HomePage implements OnInit {
     return category?.name || 'Sin categoría';
   }
 
-  async handleEdit(expense: Expense) {
+  async handleEdit(transaction: Transaction) {
     // TODO: Implementar navegación a la página de edición
   }
 
-  async handleDelete(expenseId: string) {
-    // TODO: Implementar eliminación de gasto
+  async handleDelete(transactionId: number) {
+    // TODO: Implementar eliminación de transacción
   }
 }

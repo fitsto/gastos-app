@@ -3,14 +3,16 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UpdateExpenseUseCase } from '../../contexts/expenses/application/update-expense.use-case';
-import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
+
 import { inject } from '@angular/core';
-import { Category } from '../../contexts/categories/domain/category.entity';
-import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
-import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
-import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
+
 import { ChileanCurrencyPipe } from '../../shared/pipes/chilean-currency.pipe';
+import { Category } from 'src/contexts/categories/domain/category.entity';
+import { ExpenseSupabaseRepository } from 'src/contexts/expenses/infrastructure/expense.supabase.repository';
+import { CategorySupabaseRepository } from 'src/contexts/categories/infrastructure/category.supabase.repository';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
+import { GetCurrentUserIdUseCase } from 'src/contexts/auth/application/get-current-user-id.use-case';
+import { UpdateExpenseUseCase } from 'src/contexts/expenses/application/update-expense.use-case';
 
 @Component({
   selector: 'app-edit-expense',

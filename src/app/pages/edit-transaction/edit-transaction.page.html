@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Transacción</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+    <!-- Tipo de Transacción -->
+    <ion-item>
+      <ion-label>Tipo</ion-label>
+      <ion-select formControlName="type" (ionChange)="filterCategories()">
+        <ion-select-option value="expense">Gasto</ion-select-option>
+        <ion-select-option value="income">Ingreso</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-text color="danger" *ngIf="transactionForm.get('type')?.invalid && transactionForm.get('type')?.touched">
+      <p>El tipo de transacción es requerido</p>
+    </ion-text>
+
+    <!-- Monto -->
+    <ion-item>
+      <ion-label position="stacked">Monto</ion-label>
+      <ion-input
+        type="text"
+        formControlName="amount"
+        placeholder="0"
+        inputmode="numeric"
+        (focus)="onAmountFocus()"
+        (blur)="onAmountBlur()"
+        [value]="showRawAmount ? transactionForm.get('amount')?.value : formattedAmount"
+      ></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="transactionForm.get('amount')?.invalid && transactionForm.get('amount')?.touched">
+      <p>El monto es requerido y debe ser mayor a 0</p>
+    </ion-text>
+
+    <!-- Categoría -->
+    <ion-item>
+      <ion-label position="stacked">Categoría</ion-label>
+      <ion-select formControlName="categoryId">
+        <ion-select-option *ngFor="let category of filteredCategories" [value]="category.id">
+          {{ category.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-text color="danger" *ngIf="transactionForm.get('categoryId')?.invalid && transactionForm.get('categoryId')?.touched">
+      <p>La categoría es requerida</p>
+    </ion-text>
+
+    <!-- Descripción -->
+    <ion-item>
+      <ion-label position="stacked">Descripción</ion-label>
+      <ion-textarea
+        formControlName="description"
+        placeholder="Descripción opcional"
+        rows="3"
+      ></ion-textarea>
+    </ion-item>
+
+    <!-- Fecha -->
+    <ion-item>
+      <ion-label position="stacked">Fecha</ion-label>
+      <ion-datetime
+        formControlName="date"
+        display-format="DD/MM/YYYY"
+        picker-format="DD/MM/YYYY"
+      ></ion-datetime>
+    </ion-item>
+    <ion-text color="danger" *ngIf="transactionForm.get('date')?.invalid && transactionForm.get('date')?.touched">
+      <p>La fecha es requerida</p>
+    </ion-text>
+
+    <!-- Botón de envío -->
+    <ion-button
+      type="submit"
+      expand="block"
+      [disabled]="transactionForm.invalid"
+      class="ion-margin-top"
+    >
+      Actualizar Transacción
+    </ion-button>
+  </form>
+</ion-content>

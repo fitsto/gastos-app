@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { SignInUseCase } from '../../contexts/auth/application/sign-in.use-case';
+import { SignInUseCase } from 'src/contexts/auth/application/sign-in.use-case';
 
 @Component({
   selector: 'app-login',

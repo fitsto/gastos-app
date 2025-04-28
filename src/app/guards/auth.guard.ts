@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { GetCurrentUserUseCase } from '../contexts/auth/application/get-current-user.use-case';
-import { AuthSupabaseRepository } from '../contexts/auth/infrastructure/auth.supabase.repository';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
+import { GetCurrentUserUseCase } from 'src/contexts/auth/application/get-current-user.use-case';
+
 
 export const authGuard = async () => {
   const router = inject(Router);

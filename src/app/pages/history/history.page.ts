@@ -6,16 +6,18 @@ import { Router } from '@angular/router';
 import { ExpenseCardComponent } from '../../shared/components/expense-card/expense-card.component';
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { ExpenseSupabaseRepository } from '../../contexts/expenses/infrastructure/expense.supabase.repository';
-import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
-import { Expense } from '../../contexts/expenses/domain/expense.entity';
-import { Category } from '../../contexts/categories/domain/category.entity';
+
 import { MonthYearPipe } from '../../shared/pipes/month-year.pipe';
-import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
-import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
+
 import { addIcons } from 'ionicons';
 import { add } from 'ionicons/icons';
 import { ChileanCurrencyPipe } from '../../shared/pipes/chilean-currency.pipe';
+import { Expense } from 'src/contexts/expenses/domain/expense.entity';
+import { ExpenseSupabaseRepository } from 'src/contexts/expenses/infrastructure/expense.supabase.repository';
+import { CategorySupabaseRepository } from 'src/contexts/categories/infrastructure/category.supabase.repository';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
+import { Category } from 'src/contexts/categories/domain/category.entity';
+import { GetCurrentUserIdUseCase } from 'src/contexts/auth/application/get-current-user-id.use-case';
 
 interface ExpenseGroup {
   date: string;

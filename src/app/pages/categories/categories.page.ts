@@ -23,11 +23,11 @@ import {
   trashOutline,
   folderOutline
 } from 'ionicons/icons';
-import { Category } from '../../contexts/categories/domain/category.entity';
-import { CategorySupabaseRepository } from '../../contexts/categories/infrastructure/category.supabase.repository';
-import { GetCurrentUserIdUseCase } from '../../contexts/auth/application/get-current-user-id.use-case';
-import { AuthSupabaseRepository } from '../../contexts/auth/infrastructure/auth.supabase.repository';
 import { CategoryFormModalComponent } from './components/category-form-modal/category-form-modal.component';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
+import { CategorySupabaseRepository } from 'src/contexts/categories/infrastructure/category.supabase.repository';
+import { Category } from 'src/contexts/categories/domain/category.entity';
+import { GetCurrentUserIdUseCase } from 'src/contexts/auth/application/get-current-user-id.use-case';
 
 @Component({
   selector: 'app-categories',

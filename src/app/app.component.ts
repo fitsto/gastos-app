@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { AuthSupabaseRepository } from './contexts/auth/infrastructure/auth.supabase.repository';
+import { AuthSupabaseRepository } from 'src/contexts/auth/infrastructure/auth.supabase.repository';
 
 @Component({
   selector: 'app-root',

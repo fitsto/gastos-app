@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SignUpUseCase } from '../../contexts/auth/application/sign-up.use-case';
+import { SignUpUseCase } from 'src/contexts/auth/application/sign-up.use-case';
 
 @Component({
   selector: 'app-register',
